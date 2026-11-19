@@ -3,6 +3,10 @@
 ## 1.1.0
 
 - Added `DecodingConnection->fetchString`, which returns a single string and throws `QueryDidNotReturnExactlyOneResult` or the new `QueryDidNotReturnAString` exception when there is not exactly one value or it isn't a string.
+- Added `DecodingConnection->fetchFloat`, which returns a single float and throws `QueryDidNotReturnExactlyOneResult` or the new `QueryDidNotReturnAFloat` exception when there is not exactly one value or it isn't a float. PDO returns `NUMERIC` values as string, so they need to be cast to `DOUBLE PRECISION`.
+- Added `DeserializingConnection->findArrayFromSingleValue`, which returns a list of objects, each denormalized from the single column of a row (like a list of value objects).
+- Added `DeserializingConnection->getOneFromFirstColumn`, which denormalizes all values of the first column together into one object (like an id list). Without a result, the object is denormalized from an empty list.
+- Added optional `trace` parameter to `DecodingConnection->fetchFirstColumn`. It's only meant to be used by the `DeserializingConnection`.
 
 ## 1.0.0
 

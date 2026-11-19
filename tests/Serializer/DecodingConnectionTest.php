@@ -15,6 +15,7 @@ use PHPUnit\Framework\ExpectationFailedException;
 #[CoversClass(Exception\QueryDidNotReturnAnInt::class)]
 #[CoversClass(Exception\QueryDidNotReturnABoolean::class)]
 #[CoversClass(Exception\QueryDidNotReturnAString::class)]
+#[CoversClass(Exception\QueryDidNotReturnAFloat::class)]
 #[CoversClass(Exception\DecoderTypeKeyLevelIsNotAnArray::class)]
 #[CoversClass(DTO\ResultTransformerKey::class)]
 #[CoversClass(DTO\Exception\ResultTransformationKeyCanNotStartWithAnArrayIdentifier::class)]
@@ -760,6 +761,88 @@ final class DecodingConnectionTest extends ConnectionTestCase
                     SELECT 'a'
                     UNION ALL
                     SELECT 'b'
+                    SQL,
+            ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('fetchFloatDataProvider')]
+    public function fetch_float_works(
+        float | string $expectedResult,
+        string $sql,
+    ): void {
+        // -- Act & Assert
+        try {
+            $result = $this->decodingConnection->fetchFloat($sql);
+            self::assertSame($expectedResult, $result);
+        } catch (\Throwable $exception) {
+            if ($exception instanceof ExpectationFailedException) {
+                throw $exception;
+            }
+
+            $result = $exception::class;
+            self::assertSame($expectedResult, $result);
+        }
+    }
+
+    /**
+     * @return array<string, array{
+     *     expectedResult: float | string,
+     *     sql: string,
+     * }>
+     */
+    public static function fetchFloatDataProvider(): array
+    {
+        return [
+            'double precision' => [
+                'expectedResult' => 4.5,
+                'sql' => <<<'SQL'
+                    SELECT 4.5::double precision
+                    SQL,
+            ],
+            'average cast to double precision' => [
+                'expectedResult' => 2.5,
+                'sql' => <<<'SQL'
+                    SELECT AVG(value)::double precision
+                    FROM (VALUES (2), (3)) AS v(value)
+                    SQL,
+            ],
+            'numeric' => [
+                'expectedResult' => Exception\QueryDidNotReturnAFloat::class,
+                'sql' => <<<'SQL'
+                    SELECT 4.5
+                    SQL,
+            ],
+            'int' => [
+                'expectedResult' => Exception\QueryDidNotReturnAFloat::class,
+                'sql' => <<<'SQL'
+                    SELECT 5
+                    SQL,
+            ],
+            'null' => [
+                'expectedResult' => Exception\QueryDidNotReturnAFloat::class,
+                'sql' => <<<'SQL'
+                    SELECT NULL::double precision
+                    SQL,
+            ],
+            'no result' => [
+                'expectedResult' => Exception\QueryDidNotReturnExactlyOneResult::class,
+                'sql' => <<<'SQL'
+                    WITH empty_table AS (
+                        SELECT 1
+                        WHERE false
+                    )
+                    SELECT *
+                    FROM empty_table
+                    SQL,
+            ],
+            'multiple results' => [
+                'expectedResult' => Exception\QueryDidNotReturnExactlyOneResult::class,
+                'sql' => <<<'SQL'
+                    SELECT 1.5::double precision
+                    UNION ALL
+                    SELECT 2.5::double precision
                     SQL,
             ],
         ];

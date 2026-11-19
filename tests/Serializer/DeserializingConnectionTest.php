@@ -622,6 +622,123 @@ final class DeserializingConnectionTest extends ConnectionTestCase
     }
 
     #[Test]
+    public function find_array_from_single_value_works(): void
+    {
+        // -- Arrange
+        $expectedResult = [
+            UserId::fromString('417df760-0d16-408f-8201-ec7760dee9fb'),
+            UserId::fromString('b5e1c3a2-7d4f-4e8a-9c6b-1f2e3d4c5b6a'),
+        ];
+
+        // -- Act
+        $userIds = $this->deserializingConnection->findArrayFromSingleValue(
+            sql: <<<'SQL'
+                SELECT user_id
+                FROM (VALUES
+                    ('417df760-0d16-408f-8201-ec7760dee9fb', 1),
+                    ('b5e1c3a2-7d4f-4e8a-9c6b-1f2e3d4c5b6a', 2),
+                    ('c9d8e7f6-a5b4-4c3d-8e2f-1a0b9c8d7e6f', 3)
+                ) AS users(user_id, position)
+                WHERE position <= :maxPosition
+                ORDER BY position
+                SQL,
+            class: UserId::class,
+            parameters: [
+                'maxPosition' => 2,
+            ],
+        );
+
+        // -- Assert
+        self::assertEquals($expectedResult, $userIds);
+    }
+
+    #[Test]
+    public function find_array_from_single_value_works_with_decoding(): void
+    {
+        // -- Arrange
+        $expectedResult = [
+            new Duration(15),
+            new Duration(20),
+        ];
+
+        // -- Act
+        $durations = $this->deserializingConnection->findArrayFromSingleValue(
+            sql: <<<'SQL'
+                SELECT duration
+                FROM (VALUES ('15'), ('20')) AS durations(duration)
+                SQL,
+            class: Duration::class,
+            decoderType: DTO\DecoderType::INT,
+        );
+
+        // -- Assert
+        self::assertEquals($expectedResult, $durations);
+    }
+
+    #[Test]
+    public function find_array_from_single_value_works_without_results(): void
+    {
+        // -- Act
+        $userIds = $this->deserializingConnection->findArrayFromSingleValue(
+            sql: <<<'SQL'
+                SELECT '417df760-0d16-408f-8201-ec7760dee9fb'
+                WHERE false
+                SQL,
+            class: UserId::class,
+        );
+
+        // -- Assert
+        self::assertSame([], $userIds);
+    }
+
+    #[Test]
+    public function get_one_from_first_column_works(): void
+    {
+        // -- Arrange
+        $expectedResult = ProjectIdList::fromIdStrings([
+            '0c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f',
+            '5f6e7d8c-9b0a-4f1e-8d2c-3b4a5c6d7e8f',
+        ]);
+
+        // -- Act
+        $projectIds = $this->deserializingConnection->getOneFromFirstColumn(
+            sql: <<<'SQL'
+                SELECT project_id
+                FROM (VALUES
+                    ('0c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f', 1),
+                    ('5f6e7d8c-9b0a-4f1e-8d2c-3b4a5c6d7e8f', 2),
+                    ('a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d', 3)
+                ) AS projects(project_id, position)
+                WHERE position <= :maxPosition
+                ORDER BY position
+                SQL,
+            class: ProjectIdList::class,
+            parameters: [
+                'maxPosition' => 2,
+            ],
+        );
+
+        // -- Assert
+        self::assertEquals($expectedResult, $projectIds);
+    }
+
+    #[Test]
+    public function get_one_from_first_column_works_without_results(): void
+    {
+        // -- Act
+        $projectIds = $this->deserializingConnection->getOneFromFirstColumn(
+            sql: <<<'SQL'
+                SELECT '0c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f'
+                WHERE false
+                SQL,
+            class: ProjectIdList::class,
+        );
+
+        // -- Assert
+        self::assertEquals(ProjectIdList::emptyList(), $projectIds);
+    }
+
+    #[Test]
     public function find_array_works(): void
     {
         // -- Arrange

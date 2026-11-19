@@ -44,8 +44,8 @@ make verify                     # Code validation + tests + mutation testing
 
 The bundle has four core services (all autowired, readonly classes):
 
-- **DeserializingConnection** — Main public API. Methods: `findOne`, `getOne`, `findArray`, `findGenerator`, `findOneFromSingleValue`, `getOneFromSingleValue`. Orchestrates query execution, result transformation, and deserialization.
-- **DecodingConnection** — Wraps Doctrine DBAL `Connection`. Executes SQL and decodes database values (JSON, bool, int, float) using `DecoderType` enum.
+- **DeserializingConnection** — Main public API. Methods: `findOne`, `getOne`, `findArray`, `findGenerator`, `findOneFromSingleValue`, `getOneFromSingleValue`, `findArrayFromSingleValue`, `getOneFromFirstColumn`. Orchestrates query execution, result transformation, and deserialization.
+- **DecodingConnection** — Wraps Doctrine DBAL `Connection`. Executes SQL and decodes database values (JSON, bool, int, float) using `DecoderType` enum. `fetchInt`, `fetchBool`, `fetchString` and `fetchFloat` return a single value of exactly that type.
 - **TypedDenormalizer** — Wraps Symfony Serializer for type-safe denormalization (array → DTO).
 - **ResultTransformerRunner** — Applies `ResultTransformer` pipelines to raw results before deserialization. Supports dotted key paths with array wildcards (e.g., `user.projects.*.name`).
 

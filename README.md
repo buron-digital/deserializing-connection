@@ -114,6 +114,8 @@ These are the available methods:
 | `getOneFromSingleValue` | One object from a single column | Throws `ElementNotFound` (or a custom exception) |
 | `findOneFromSingleValue` | One object from a single column or `null` | Returns `null` |
 | `findArray` | A list of objects (or an array indexed by a custom key) | Returns an empty array |
+| `findArrayFromSingleValue` | A list of objects, each from the single column of a row | Returns an empty array |
+| `getOneFromFirstColumn` | One object from all values of the first column (e.g. an id list) | Returns the object denormalized from an empty list |
 | `findGenerator` | A generator yielding the objects | Yields nothing |
 
 #### Custom exceptions
@@ -165,6 +167,39 @@ $usersById = $this->deserializingConnection->findArray(
 ```
 
 `findGenerator` yields the objects one after another. The query is only executed when the generator is consumed.
+
+`findArrayFromSingleValue` returns a list of objects, each denormalized from the single column of a row, for example a list of value objects:
+
+```php
+$durations = $this->deserializingConnection->findArrayFromSingleValue(
+    sql: <<<'SQL'
+        SELECT duration
+        FROM projects
+        WHERE company_id = :companyId
+        SQL,
+    class: Duration::class,
+    parameters: [
+        'companyId' => $companyId,
+    ],
+);
+```
+
+`getOneFromFirstColumn` denormalizes all values of the first column together as a list into one object. This way an id list comes directly from the database. Without a result, the object is denormalized from an empty list:
+
+```php
+$projectIds = $this->deserializingConnection->getOneFromFirstColumn(
+    sql: <<<'SQL'
+        SELECT project_id
+        FROM projects
+        WHERE company_id = :companyId
+        ORDER BY name
+        SQL,
+    class: ProjectIdList::class,
+    parameters: [
+        'companyId' => $companyId,
+    ],
+);
+```
 
 #### Unused results
 
@@ -294,6 +329,7 @@ When you only need scalar values or arrays, use the underlying `DecodingConnecti
 | `fetchInt` | An `int`, throws an exception when there isn't exactly one result or it isn't an integer |
 | `fetchBool` | A `bool`, throws an exception when there isn't exactly one result or it isn't a boolean |
 | `fetchString` | A `string`, throws an exception when there isn't exactly one result or it isn't a string |
+| `fetchFloat` | A `float`, throws an exception when there isn't exactly one result or it isn't a float (PDO returns `NUMERIC` as string, so cast it to `DOUBLE PRECISION`) |
 
 ### Normalizers
 

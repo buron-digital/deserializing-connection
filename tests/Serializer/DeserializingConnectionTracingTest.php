@@ -11,6 +11,9 @@ use DigitalCraftsman\DeserializingConnection\Test\ConnectionTestCase;
 use DigitalCraftsman\DeserializingConnection\Test\DTO\Company;
 use DigitalCraftsman\DeserializingConnection\Test\DTO\Duration;
 use DigitalCraftsman\DeserializingConnection\Test\ValueObject\CompanyId;
+use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectId;
+use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectIdList;
+use DigitalCraftsman\Ids\ValueObject\Exception\InvalidId;
 use DigitalCraftsman\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
 use DigitalCraftsman\SelfAwareNormalizers\Serializer\IntNormalizableNormalizer;
 use DigitalCraftsman\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
@@ -227,6 +230,69 @@ final class DeserializingConnectionTracingTest extends ConnectionTestCase
     }
 
     #[Test]
+    public function find_array_from_single_value_is_traced(): void
+    {
+        // -- Act
+        (void) $this->deserializingConnection->findArrayFromSingleValue(
+            sql: "SELECT duration FROM (VALUES ('15'), ('20')) AS durations(duration)",
+            class: Duration::class,
+            decoderType: DTO\DecoderType::INT,
+        );
+
+        // -- Assert
+        $trace = $this->onlyTrace();
+        self::assertSame(DeserializingConnection::class.'::findArrayFromSingleValue', $trace->method);
+        self::assertSame([
+            'class' => Duration::class,
+            'decoderType' => DTO\DecoderType::INT,
+        ], $trace->configuration);
+        self::assertEquals([
+            ProfilingTrace::STAGE_RAW => ['15', '20'],
+            ProfilingTrace::STAGE_DECODED => [15, 20],
+            ProfilingTrace::STAGE_DENORMALIZED => [
+                new Duration(15),
+                new Duration(20),
+            ],
+        ], $trace->stages);
+    }
+
+    #[Test]
+    public function get_one_from_first_column_is_traced(): void
+    {
+        // -- Act
+        (void) $this->deserializingConnection->getOneFromFirstColumn(
+            sql: <<<'SQL'
+                SELECT project_id
+                FROM (VALUES ('"0c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f"'), ('"5f6e7d8c-9b0a-4f1e-8d2c-3b4a5c6d7e8f"')) AS projects(project_id)
+                SQL,
+            class: ProjectIdList::class,
+            decoderType: DTO\DecoderType::JSON,
+        );
+
+        // -- Assert
+        $trace = $this->onlyTrace();
+        self::assertSame(DeserializingConnection::class.'::getOneFromFirstColumn', $trace->method);
+        self::assertSame([
+            'class' => ProjectIdList::class,
+            'decoderType' => DTO\DecoderType::JSON,
+        ], $trace->configuration);
+        self::assertEquals([
+            ProfilingTrace::STAGE_RAW => [
+                '"0c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f"',
+                '"5f6e7d8c-9b0a-4f1e-8d2c-3b4a5c6d7e8f"',
+            ],
+            ProfilingTrace::STAGE_DECODED => [
+                '0c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f',
+                '5f6e7d8c-9b0a-4f1e-8d2c-3b4a5c6d7e8f',
+            ],
+            ProfilingTrace::STAGE_DENORMALIZED => ProjectIdList::fromIdStrings([
+                '0c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f',
+                '5f6e7d8c-9b0a-4f1e-8d2c-3b4a5c6d7e8f',
+            ]),
+        ], $trace->stages);
+    }
+
+    #[Test]
     public function find_array_is_traced(): void
     {
         // -- Arrange
@@ -438,6 +504,20 @@ final class DeserializingConnectionTracingTest extends ConnectionTestCase
                     class: Duration::class,
                 ),
                 Exception\ElementNotFound::class,
+            ],
+            'find array from single value' => [
+                static fn (DeserializingConnection $connection): mixed => $connection->findArrayFromSingleValue(
+                    sql: "SELECT 'invalid'",
+                    class: ProjectId::class,
+                ),
+                InvalidId::class,
+            ],
+            'get one from first column' => [
+                static fn (DeserializingConnection $connection): mixed => $connection->getOneFromFirstColumn(
+                    sql: "SELECT 'invalid'",
+                    class: ProjectIdList::class,
+                ),
+                InvalidId::class,
             ],
             'find array' => [
                 static fn (DeserializingConnection $connection): mixed => $connection->findArray(
