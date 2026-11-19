@@ -403,6 +403,37 @@ return App::config([
 
 In this case, the null tracer is used, and the panel isn't shown.
 
+### Result set mapping connection
+
+When you need managed entities instead of DTOs (for example to change them afterward), but the query can't be expressed with the finder methods of the repository (joins, JSONB operators, `NOT`, `ORDER BY RANDOM()`, …), the `ResultSetMappingConnection` gets them from native SQL. It builds the result set mapping and the native query of the Doctrine ORM, so only the SQL, the entity class, its table alias and the parameters need to be stated:
+
+```php
+$configurations = $this->resultSetMappingConnection->findArray(
+    sql: <<<'SQL'
+        SELECT push_notification_configuration.*
+        FROM push_notification_configuration
+        WHERE push_notification_configuration.device_identifier = :deviceIdentifier
+            AND NOT push_notification_configuration.user_id = :userId
+        SQL,
+    entityClass: PushNotificationConfiguration::class,
+    alias: 'push_notification_configuration',
+    parameters: [
+        'deviceIdentifier' => $deviceIdentifier,
+        'userId' => $userId,
+    ],
+);
+```
+
+| Method | Returns | When nothing is found |
+|---|---|---|
+| `getOne` | One entity | Throws `EntityNotFound` (or a custom exception through `otherwiseThrow`) |
+| `findOne` | One entity or `null` | Returns `null` |
+| `findArray` | A list of entities (or an array indexed by a custom key through `indexedBy`) | Returns an empty array |
+
+The SQL must select the wildcard of the alias (like `push_notification_configuration.*`, also quoted as `"push_notification_configuration".*`). Otherwise, an `AliasWildcardMissingInSQL` exception is thrown, as the entity would be hydrated from the wrong columns.
+
+The `ResultSetMappingConnection` is only registered when `doctrine/orm` is installed.
+
 ## Additional documentation
 
 - [Changelog](./CHANGELOG.md)

@@ -7,6 +7,7 @@
 - Added `DeserializingConnection->findArrayFromFirstColumn`, which denormalizes the first column of every row into an object of its own (like a list of value objects).
 - Added `DeserializingConnection->getOneFromFirstColumn`, which denormalizes the first column of all rows together into one object (like an id list). Without a result, the object is denormalized from an empty list.
 - Added optional `trace` parameter to `DecodingConnection->fetchFirstColumn`. It's only meant to be used by the `DeserializingConnection`.
+- Added `ResultSetMappingConnection` to get managed entities from native SQL through the Doctrine ORM (`findArray`, `findOne` and `getOne`). It's only registered as a service when `doctrine/orm` is installed, which is suggested but not required.
 
 ## 1.0.0
 
