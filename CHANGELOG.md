@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- `ResultSetMappingConnection` states the parameter type for objects that aren't entities, so that the ORM doesn't try to resolve them as entities. Value objects (like ids) are passed to the DBAL connection as they are, traversables (like id lists) as list of their items, both with the type the ORM would infer for them. Entities, backed enums and traversables containing entities, backed enums, arrays or traversables are still resolved by the ORM. The result of the queries doesn't change, but especially long id lists are bound considerably faster.
+
 ## 1.1.0
 
 - Added `DecodingConnection->fetchString`, which returns a single string and throws `QueryDidNotReturnExactlyOneResult` or the new `QueryDidNotReturnAString` exception when there is not exactly one value or it isn't a string.

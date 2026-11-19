@@ -437,6 +437,13 @@ $configurations = $this->resultSetMappingConnection->findArray(
 
 The SQL must select the wildcard of the alias (like `push_notification_configuration.*`, also quoted as `"push_notification_configuration".*`). Otherwise, an `AliasWildcardMissingInSQL` exception is thrown, as the entity would be hydrated from the wrong columns.
 
+Without a parameter type, the ORM tries to resolve every object parameter as an entity (to use its identifier instead), which is expensive for objects that aren't entities, especially for long id lists. Therefore, the `ResultSetMappingConnection` states the type itself for objects that aren't entities:
+
+- Value objects (like ids) are passed to the DBAL connection as they are, with the type the ORM would infer for them (a string, or the date time type for date times).
+- Traversables (like id lists) are passed as list of their items, with the array type the ORM would infer for them. This is only done when the items are scalars or value objects.
+
+Entities, backed enums and traversables containing entities, backed enums, arrays or traversables are still resolved by the ORM. An explicit parameter type is always used as it is.
+
 The `ResultSetMappingConnection` is only registered when `doctrine/orm` is installed.
 
 ## Additional documentation
