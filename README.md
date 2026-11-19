@@ -2,7 +2,7 @@
 
 Write plain SQL, get typed DTOs back. One method call executes the query, decodes the database values (like JSON or booleans) and denormalizes the result into your read models through the Symfony serializer – without an ORM, without hydration code and without losing any type information.
 
-[![Latest Stable Version](https://img.shields.io/badge/stable-1.1.0-blue)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
+[![Latest Stable Version](https://img.shields.io/badge/stable-1.1.1-blue)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
 [![PHP Version Require](https://img.shields.io/badge/php-8.5|8.6-5b5d95)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
 [![codecov](https://codecov.io/gh/digital-craftsman-de/deserializing-connection/branch/main/graph/badge.svg?token=BL0JKZYLBG)](https://codecov.io/gh/digital-craftsman-de/deserializing-connection)
 ![Packagist Downloads](https://img.shields.io/packagist/dt/digital-craftsman/deserializing-connection)
