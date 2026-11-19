@@ -293,6 +293,7 @@ When you only need scalar values or arrays, use the underlying `DecodingConnecti
 | `fetchFirstColumn` | The values of the first column |
 | `fetchInt` | An `int`, throws an exception when there isn't exactly one result or it isn't an integer |
 | `fetchBool` | A `bool`, throws an exception when there isn't exactly one result or it isn't a boolean |
+| `fetchString` | A `string`, throws an exception when there isn't exactly one result or it isn't a string |
 
 ### Normalizers
 

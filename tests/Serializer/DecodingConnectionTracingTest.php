@@ -254,6 +254,21 @@ final class DecodingConnectionTracingTest extends ConnectionTestCase
         ], $trace->stages);
     }
 
+    #[Test]
+    public function fetch_string_is_traced(): void
+    {
+        // -- Act
+        (void) $this->decodingConnection->fetchString('SELECT \'bla\'');
+
+        // -- Assert
+        $trace = $this->onlyTrace();
+        self::assertSame(DecodingConnection::class.'::fetchString', $trace->method);
+        self::assertSame([], $trace->configuration);
+        self::assertSame([
+            ProfilingTrace::STAGE_RAW => ['bla'],
+        ], $trace->stages);
+    }
+
     /**
      * Used by the DeserializingConnection, so that all steps are recorded in a single trace.
      *
@@ -358,6 +373,10 @@ final class DecodingConnectionTracingTest extends ConnectionTestCase
             'fetch bool' => [
                 static fn (DecodingConnection $connection): mixed => $connection->fetchBool('SELECT 1'),
                 Exception\QueryDidNotReturnABoolean::class,
+            ],
+            'fetch string' => [
+                static fn (DecodingConnection $connection): mixed => $connection->fetchString('SELECT 1'),
+                Exception\QueryDidNotReturnAString::class,
             ],
         ];
     }

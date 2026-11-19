@@ -14,6 +14,7 @@ use PHPUnit\Framework\ExpectationFailedException;
 #[CoversClass(Exception\QueryDidNotReturnExactlyOneResult::class)]
 #[CoversClass(Exception\QueryDidNotReturnAnInt::class)]
 #[CoversClass(Exception\QueryDidNotReturnABoolean::class)]
+#[CoversClass(Exception\QueryDidNotReturnAString::class)]
 #[CoversClass(Exception\DecoderTypeKeyLevelIsNotAnArray::class)]
 #[CoversClass(DTO\ResultTransformerKey::class)]
 #[CoversClass(DTO\Exception\ResultTransformationKeyCanNotStartWithAnArrayIdentifier::class)]
@@ -678,6 +679,87 @@ final class DecodingConnectionTest extends ConnectionTestCase
                     )
                     SELECT *
                     FROM empty_table
+                    SQL,
+            ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('fetchStringDataProvider')]
+    public function fetch_string_works(
+        string $expectedResult,
+        string $sql,
+    ): void {
+        // -- Act & Assert
+        try {
+            $result = $this->decodingConnection->fetchString($sql);
+            self::assertSame($expectedResult, $result);
+        } catch (\Throwable $exception) {
+            if ($exception instanceof ExpectationFailedException) {
+                throw $exception;
+            }
+
+            $result = $exception::class;
+            self::assertSame($expectedResult, $result);
+        }
+    }
+
+    /**
+     * @return array<string, array{
+     *     expectedResult: string,
+     *     sql: string,
+     * }>
+     */
+    public static function fetchStringDataProvider(): array
+    {
+        return [
+            'string' => [
+                'expectedResult' => 'bla',
+                'sql' => <<<'SQL'
+                    SELECT 'bla'
+                    SQL,
+            ],
+            'empty string' => [
+                'expectedResult' => '',
+                'sql' => <<<'SQL'
+                    SELECT ''
+                    SQL,
+            ],
+            'uuid' => [
+                'expectedResult' => '4a1d0c5e-8f7b-4c4e-9b0a-2f6d3e1c7a90',
+                'sql' => <<<'SQL'
+                    SELECT '4a1d0c5e-8f7b-4c4e-9b0a-2f6d3e1c7a90'::uuid
+                    SQL,
+            ],
+            'int' => [
+                'expectedResult' => Exception\QueryDidNotReturnAString::class,
+                'sql' => <<<'SQL'
+                    SELECT 5
+                    SQL,
+            ],
+            'null' => [
+                'expectedResult' => Exception\QueryDidNotReturnAString::class,
+                'sql' => <<<'SQL'
+                    SELECT NULL
+                    SQL,
+            ],
+            'no result' => [
+                'expectedResult' => Exception\QueryDidNotReturnExactlyOneResult::class,
+                'sql' => <<<'SQL'
+                    WITH empty_table AS (
+                        SELECT 1
+                        WHERE false
+                    )
+                    SELECT *
+                    FROM empty_table
+                    SQL,
+            ],
+            'multiple results' => [
+                'expectedResult' => Exception\QueryDidNotReturnExactlyOneResult::class,
+                'sql' => <<<'SQL'
+                    SELECT 'a'
+                    UNION ALL
+                    SELECT 'b'
                     SQL,
             ],
         ];

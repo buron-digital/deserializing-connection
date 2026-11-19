@@ -264,6 +264,44 @@ final readonly class DecodingConnection
     }
 
     /**
+     * @param list<mixed>|array<string, mixed>                                        $parameters
+     * @param array<int<0, max>|string, ArrayParameterType|ParameterType|Type|string> $parameterTypes
+     *
+     * @throws Exception\QueryDidNotReturnExactlyOneResult
+     * @throws Exception\QueryDidNotReturnAString
+     */
+    #[\NoDiscard('as the result of the query would be lost')]
+    public function fetchString(
+        string $sql,
+        array $parameters = [],
+        array $parameterTypes = [],
+    ): string {
+        $trace = $this->tracer->startTrace(__METHOD__, $sql, $parameters, $parameterTypes, []);
+
+        try {
+            /** @var array<int, mixed> $result */
+            $result = $this->connection->fetchFirstColumn($sql, $parameters, $parameterTypes);
+
+            $trace->recordRawResult($result);
+
+            if (count($result) !== 1) {
+                throw new Exception\QueryDidNotReturnExactlyOneResult();
+            }
+
+            $value = $result[0];
+            if (!is_string($value)) {
+                throw new Exception\QueryDidNotReturnAString();
+            }
+
+            return $value;
+        } catch (\Throwable $exception) {
+            $trace->recordException($exception);
+
+            throw $exception;
+        }
+    }
+
+    /**
      * @param array<int, array<string, mixed>> $data
      * @param array<string, DTO\DecoderType>   $decoderTypes
      *
