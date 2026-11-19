@@ -378,11 +378,13 @@ Any other normalizer registered in the Symfony serializer works as well.
 
 ### Symfony profiler
 
-When the Symfony profiler is enabled (through `symfony/web-profiler-bundle`), every usage of the `DeserializingConnection` and the `DecodingConnection` is shown in a separate "Deserializing Connection" panel. For every usage it contains:
+When the Symfony profiler is enabled (through `symfony/web-profiler-bundle`), every usage of the `DeserializingConnection`, the `DecodingConnection` and the `ResultSetMappingConnection` is shown in a separate "Deserializing Connection" panel. For every usage it contains:
 
 - The runnable query with all parameters inlined (highlighted like in the Doctrine panel, including a copy button).
 - The raw result, the result after decoding, the result after the result transformers and the denormalized objects, each with the duration of the step.
 - The configuration (class, decoder types, result transformers), the query duration, the location of the usage and a potential exception including the step in which it happened.
+
+As the ORM executes the query and hydrates the entities in one step, the usages of the `ResultSetMappingConnection` contain a single step "Query and hydration" with the entities and the duration of both. Its duration is part of the total time, but not of the query time.
 
 The runnable query is rendered with the same parser that Doctrine DBAL uses to expand parameters. Therefore, string literals, comments, casts (`::`), array parameters and escaped question marks (`??` for the JSONB operators of PostgreSQL) are handled the same way as when the query is executed. All values are inlined as string literals, which is how PDO sends parameters to PostgreSQL.
 
@@ -429,6 +431,9 @@ $configurations = $this->resultSetMappingConnection->findArray(
 | `getOne` | One entity | Throws `EntityNotFound` (or a custom exception through `otherwiseThrow`) |
 | `findOne` | One entity or `null` | Returns `null` |
 | `findArray` | A list of entities (or an array indexed by a custom key through `indexedBy`) | Returns an empty array |
+| `findGenerator` | A generator yielding the entities | Yields nothing |
+
+`findGenerator` hydrates the entities one after another while the generator is consumed, instead of all at once. The query is only executed when the generator is consumed. The entities stay managed by the entity manager, so when iterating over a lot of entities, clear the entity manager in between to keep the memory usage low.
 
 The SQL must select the wildcard of the alias (like `push_notification_configuration.*`, also quoted as `"push_notification_configuration".*`). Otherwise, an `AliasWildcardMissingInSQL` exception is thrown, as the entity would be hydrated from the wrong columns.
 

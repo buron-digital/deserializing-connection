@@ -47,7 +47,7 @@ The bundle has five core services (all autowired, readonly classes):
 - **DeserializingConnection** — Main public API. Methods: `findOne`, `getOne`, `findArray`, `findGenerator`, `findOneFromSingleValue`, `getOneFromSingleValue`, `findArrayFromFirstColumn`, `getOneFromFirstColumn`. Orchestrates query execution, result transformation, and deserialization.
 - **DecodingConnection** — Wraps Doctrine DBAL `Connection`. Executes SQL and decodes database values (JSON, bool, int, float) using `DecoderType` enum. `fetchInt`, `fetchBool`, `fetchString` and `fetchFloat` return a single value of exactly that type.
 - **TypedDenormalizer** — Wraps Symfony Serializer for type-safe denormalization (array → DTO).
-- **ResultSetMappingConnection** (`src/ORM/`) — Gets managed entities from native SQL through the Doctrine ORM (`findArray`, `findOne`, `getOne`). The SQL must contain the wildcard of the alias. Only registered when `doctrine/orm` is installed (optional dependency, `orm.yaml`).
+- **ResultSetMappingConnection** (`src/ORM/`) — Gets managed entities from native SQL through the Doctrine ORM (`findArray`, `findGenerator`, `findOne`, `getOne`), traced for the profiler like the other connections. The SQL must contain the wildcard of the alias. Only registered when `doctrine/orm` is installed (optional dependency, `orm.yaml`).
 - **ResultTransformerRunner** — Applies `ResultTransformer` pipelines to raw results before deserialization. Supports dotted key paths with array wildcards (e.g., `user.projects.*.name`).
 
 Key DTOs in `src/Serializer/DTO/`: `ResultTransformer` (transformation spec with factory methods), `ResultTransformerKey` (dotted path value object), `ResultTransformers` (validated collection), `DecoderType` (enum for type conversions).

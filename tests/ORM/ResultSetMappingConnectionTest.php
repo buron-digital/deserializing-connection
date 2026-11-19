@@ -257,6 +257,131 @@ final class ResultSetMappingConnectionTest extends EntityManagerTestCase
     }
 
     #[Test]
+    public function find_generator_works(): void
+    {
+        // -- Act
+        $projects = $this->resultSetMappingConnection->findGenerator(
+            sql: <<<'SQL'
+                SELECT project.*
+                FROM project
+                WHERE NOT project.project_id = :projectId
+                ORDER BY project.name
+                SQL,
+            entityClass: Project::class,
+            alias: 'project',
+            parameters: [
+                'projectId' => self::BATMOBILE_ID,
+            ],
+        );
+
+        // -- Assert
+        self::assertSame(
+            [
+                'Arc reactor',
+                'Iron Man suit',
+            ],
+            array_map(
+                static fn (Project $project): string => $project->name,
+                iterator_to_array($projects, false),
+            ),
+        );
+    }
+
+    #[Test]
+    public function find_generator_returns_managed_entities(): void
+    {
+        // -- Act
+        $projects = $this->resultSetMappingConnection->findGenerator(
+            sql: <<<'SQL'
+                SELECT project.*
+                FROM project
+                SQL,
+            entityClass: Project::class,
+            alias: 'project',
+        );
+
+        // -- Assert
+        $numberOfProjects = 0;
+        foreach ($projects as $project) {
+            self::assertTrue($this->entityManager->contains($project));
+            ++$numberOfProjects;
+        }
+        self::assertSame(3, $numberOfProjects);
+    }
+
+    #[Test]
+    public function find_generator_works_with_parameter_types(): void
+    {
+        // -- Act
+        $projects = $this->resultSetMappingConnection->findGenerator(
+            sql: <<<'SQL'
+                SELECT project.*
+                FROM project
+                WHERE project.project_id IN (:projectIds)
+                ORDER BY project.name
+                SQL,
+            entityClass: Project::class,
+            alias: 'project',
+            parameters: [
+                'projectIds' => [
+                    self::IRON_MAN_SUIT_ID,
+                    self::BATMOBILE_ID,
+                ],
+            ],
+            parameterTypes: [
+                'projectIds' => ArrayParameterType::STRING,
+            ],
+        );
+
+        // -- Assert
+        self::assertSame(
+            [
+                'Batmobile',
+                'Iron Man suit',
+            ],
+            array_map(
+                static fn (Project $project): string => $project->name,
+                iterator_to_array($projects, false),
+            ),
+        );
+    }
+
+    #[Test]
+    public function find_generator_works_without_results(): void
+    {
+        // -- Act
+        $projects = $this->resultSetMappingConnection->findGenerator(
+            sql: <<<'SQL'
+                SELECT project.*
+                FROM project
+                WHERE false
+                SQL,
+            entityClass: Project::class,
+            alias: 'project',
+        );
+
+        // -- Assert
+        self::assertSame([], iterator_to_array($projects, false));
+    }
+
+    #[Test]
+    public function find_generator_fails_when_alias_wildcard_is_missing(): void
+    {
+        // -- Assert
+        $this->expectException(Exception\AliasWildcardMissingInSQL::class);
+
+        // -- Act
+        iterator_to_array($this->resultSetMappingConnection->findGenerator(
+            sql: <<<'SQL'
+                SELECT project.project_id
+                FROM project
+                SQL,
+            entityClass: Project::class,
+            alias: 'project',
+        ));
+    }
+
+    #[Test]
     public function quoted_alias_is_accepted(): void
     {
         // -- Act
