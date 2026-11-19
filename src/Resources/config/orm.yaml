@@ -1,0 +1,7 @@
+services:
+
+  # Only loaded when doctrine/orm is installed, see DeserializingConnectionExtension.
+
+  DigitalCraftsman\DeserializingConnection\ORM\ResultSetMappingConnection:
+    autowire: true
+    autoconfigure: true

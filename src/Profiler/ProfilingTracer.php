@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DigitalCraftsman\DeserializingConnection\Profiler;
 
+use DigitalCraftsman\DeserializingConnection\ORM\ResultSetMappingConnection;
 use DigitalCraftsman\DeserializingConnection\Serializer\DecodingConnection;
 use DigitalCraftsman\DeserializingConnection\Serializer\DeserializingConnection;
 use Symfony\Contracts\Service\ResetInterface;
@@ -66,14 +67,14 @@ final class ProfilingTracer implements Tracer, ResetInterface
     }
 
     /**
-     * The caller is the location from where the DeserializingConnection or DecodingConnection was called.
+     * The caller is the location from where the DeserializingConnection, DecodingConnection or ResultSetMappingConnection was called.
      *
      * @return array{file: string, line: int}|null
      */
     private static function caller(): ?array
     {
         foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS) as $frame) {
-            if (!in_array($frame['class'] ?? null, [DeserializingConnection::class, DecodingConnection::class], true)) {
+            if (!in_array($frame['class'] ?? null, [DeserializingConnection::class, DecodingConnection::class, ResultSetMappingConnection::class], true)) {
                 continue;
             }
             // Not available when called through an internal function like array_map

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0
+
+- Added `DecodingConnection->fetchString`, which returns a single string and throws `QueryDidNotReturnExactlyOneResult` or the new `QueryDidNotReturnAString` exception when there is not exactly one value or it isn't a string.
+- Added `DecodingConnection->fetchFloat`, which returns a single float and throws `QueryDidNotReturnExactlyOneResult` or the new `QueryDidNotReturnAFloat` exception when there is not exactly one value or it isn't a float. PDO returns `NUMERIC` values as string, so they need to be cast to `DOUBLE PRECISION`.
+- Added `DeserializingConnection->findArrayFromFirstColumn`, which denormalizes the first column of every row into an object of its own (like a list of value objects).
+- Added `DeserializingConnection->getOneFromFirstColumn`, which denormalizes the first column of all rows together into one object (like an id list). Without a result, the object is denormalized from an empty list.
+- Added optional `trace` parameter to `DecodingConnection->fetchFirstColumn`. It's only meant to be used by the `DeserializingConnection`.
+- Added `ResultSetMappingConnection` to get managed entities from native SQL through the Doctrine ORM (`findArray`, `findGenerator`, `findOne` and `getOne`). It's only registered as a service when `doctrine/orm` is installed, which is suggested but not required. Its usages are shown in the profiler panel with a single step for the query and the hydration.
+
 ## 1.0.0
 
 - First stable release. From now on, the bundle follows semantic versioning and breaking changes are only introduced in major versions.

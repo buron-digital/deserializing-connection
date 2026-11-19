@@ -153,6 +153,8 @@ final readonly class DecodingConnection
     /**
      * @param list<mixed>|array<string, mixed>                                        $parameters
      * @param array<int<0, max>|string, ArrayParameterType|ParameterType|Type|string> $parameterTypes
+     *
+     * @return list<mixed>
      */
     #[\NoDiscard('as the result of the query would be lost')]
     public function fetchFirstColumn(
@@ -160,13 +162,14 @@ final readonly class DecodingConnection
         array $parameters = [],
         array $parameterTypes = [],
         ?DTO\DecoderType $decoderType = null,
+        ?Trace $trace = null,
     ): array {
-        $trace = $this->tracer->startTrace(__METHOD__, $sql, $parameters, $parameterTypes, [
+        $trace ??= $this->tracer->startTrace(__METHOD__, $sql, $parameters, $parameterTypes, [
             'decoderType' => $decoderType,
         ]);
 
         try {
-            /** @var array<int, array<string, mixed>> $result */
+            /** @var list<mixed> $result */
             $result = $this->connection->fetchFirstColumn($sql, $parameters, $parameterTypes);
 
             $trace->recordRawResult($result);
@@ -253,6 +256,85 @@ final readonly class DecodingConnection
             $value = $result[0];
             if (!is_bool($value)) {
                 throw new Exception\QueryDidNotReturnABoolean();
+            }
+
+            return $value;
+        } catch (\Throwable $exception) {
+            $trace->recordException($exception);
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                        $parameters
+     * @param array<int<0, max>|string, ArrayParameterType|ParameterType|Type|string> $parameterTypes
+     *
+     * @throws Exception\QueryDidNotReturnExactlyOneResult
+     * @throws Exception\QueryDidNotReturnAString
+     */
+    #[\NoDiscard('as the result of the query would be lost')]
+    public function fetchString(
+        string $sql,
+        array $parameters = [],
+        array $parameterTypes = [],
+    ): string {
+        $trace = $this->tracer->startTrace(__METHOD__, $sql, $parameters, $parameterTypes, []);
+
+        try {
+            /** @var array<int, mixed> $result */
+            $result = $this->connection->fetchFirstColumn($sql, $parameters, $parameterTypes);
+
+            $trace->recordRawResult($result);
+
+            if (count($result) !== 1) {
+                throw new Exception\QueryDidNotReturnExactlyOneResult();
+            }
+
+            $value = $result[0];
+            if (!is_string($value)) {
+                throw new Exception\QueryDidNotReturnAString();
+            }
+
+            return $value;
+        } catch (\Throwable $exception) {
+            $trace->recordException($exception);
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                        $parameters
+     * @param array<int<0, max>|string, ArrayParameterType|ParameterType|Type|string> $parameterTypes
+     *
+     * PDO returns values of the type NUMERIC (e.g. the result of AVG on integers) as string. Cast them to DOUBLE PRECISION in the query
+     * to get a float.
+     *
+     * @throws Exception\QueryDidNotReturnExactlyOneResult
+     * @throws Exception\QueryDidNotReturnAFloat
+     */
+    #[\NoDiscard('as the result of the query would be lost')]
+    public function fetchFloat(
+        string $sql,
+        array $parameters = [],
+        array $parameterTypes = [],
+    ): float {
+        $trace = $this->tracer->startTrace(__METHOD__, $sql, $parameters, $parameterTypes, []);
+
+        try {
+            /** @var array<int, mixed> $result */
+            $result = $this->connection->fetchFirstColumn($sql, $parameters, $parameterTypes);
+
+            $trace->recordRawResult($result);
+
+            if (count($result) !== 1) {
+                throw new Exception\QueryDidNotReturnExactlyOneResult();
+            }
+
+            $value = $result[0];
+            if (!is_float($value)) {
+                throw new Exception\QueryDidNotReturnAFloat();
             }
 
             return $value;

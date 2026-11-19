@@ -11,13 +11,17 @@
     "symfony/serializer": "^7.4|^8.0"
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^3.95",
     "digital-craftsman/ids": "^2.5.0",
+    "doctrine/orm": "^3.7",
+    "friendsofphp/php-cs-fixer": "^3.95",
     "infection/infection": "^0.35",
     "phpunit/phpunit": "^13.4",
     "symfony/property-access": "^7.4|^8.0",
     "symfony/property-info": "^7.4|^8.0",
     "vimeo/psalm": "^6.20"
+  },
+  "suggest": {
+    "doctrine/orm": "Required to get managed entities from native SQL through the ResultSetMappingConnection"
   },
   "autoload": {
     "psr-4": {

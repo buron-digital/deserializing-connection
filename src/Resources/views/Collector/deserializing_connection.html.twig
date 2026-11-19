@@ -98,6 +98,10 @@
         transformed: 'Transformed',
         denormalized: 'Denormalized',
     } %}
+    {# The ORM executes the query and hydrates the entities in one step, so there is only a single step with the duration of both. #}
+    {% set result_set_mapping_stage_labels = {
+        denormalized: 'Query and hydration',
+    } %}
     {% set traces = collector.traces %}
     {% set failed_traces = traces|filter(trace => trace.exception is not null) %}
     {% set query_duration = traces|reduce((carry, trace) => carry + (trace.stageDurationsInNanoseconds.raw ?? 0), 0) %}
@@ -128,7 +132,7 @@
 
     {% if traces|length == 0 %}
         <div class="empty empty-panel">
-            <p>Neither the DeserializingConnection nor the DecodingConnection were used.</p>
+            <p>None of the DeserializingConnection, DecodingConnection and ResultSetMappingConnection were used.</p>
         </div>
     {% else %}
         <table class="alt queries-table">
@@ -171,7 +175,8 @@
                             {% endif %}
                         </td>
                     </tr>
-                    {% for stage, label in stage_labels %}
+                    {% set labels = trace.method starts with 'DigitalCraftsman\\DeserializingConnection\\ORM\\' ? result_set_mapping_stage_labels : stage_labels %}
+                    {% for stage, label in labels %}
                         {% if trace.stages[stage] is defined %}
                             <tr class="deserializing-connection-step {{ status }}">
                                 <td></td>

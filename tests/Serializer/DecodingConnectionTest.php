@@ -14,6 +14,8 @@ use PHPUnit\Framework\ExpectationFailedException;
 #[CoversClass(Exception\QueryDidNotReturnExactlyOneResult::class)]
 #[CoversClass(Exception\QueryDidNotReturnAnInt::class)]
 #[CoversClass(Exception\QueryDidNotReturnABoolean::class)]
+#[CoversClass(Exception\QueryDidNotReturnAString::class)]
+#[CoversClass(Exception\QueryDidNotReturnAFloat::class)]
 #[CoversClass(Exception\DecoderTypeKeyLevelIsNotAnArray::class)]
 #[CoversClass(DTO\ResultTransformerKey::class)]
 #[CoversClass(DTO\Exception\ResultTransformationKeyCanNotStartWithAnArrayIdentifier::class)]
@@ -678,6 +680,169 @@ final class DecodingConnectionTest extends ConnectionTestCase
                     )
                     SELECT *
                     FROM empty_table
+                    SQL,
+            ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('fetchStringDataProvider')]
+    public function fetch_string_works(
+        string $expectedResult,
+        string $sql,
+    ): void {
+        // -- Act & Assert
+        try {
+            $result = $this->decodingConnection->fetchString($sql);
+            self::assertSame($expectedResult, $result);
+        } catch (\Throwable $exception) {
+            if ($exception instanceof ExpectationFailedException) {
+                throw $exception;
+            }
+
+            $result = $exception::class;
+            self::assertSame($expectedResult, $result);
+        }
+    }
+
+    /**
+     * @return array<string, array{
+     *     expectedResult: string,
+     *     sql: string,
+     * }>
+     */
+    public static function fetchStringDataProvider(): array
+    {
+        return [
+            'string' => [
+                'expectedResult' => 'bla',
+                'sql' => <<<'SQL'
+                    SELECT 'bla'
+                    SQL,
+            ],
+            'empty string' => [
+                'expectedResult' => '',
+                'sql' => <<<'SQL'
+                    SELECT ''
+                    SQL,
+            ],
+            'uuid' => [
+                'expectedResult' => '4a1d0c5e-8f7b-4c4e-9b0a-2f6d3e1c7a90',
+                'sql' => <<<'SQL'
+                    SELECT '4a1d0c5e-8f7b-4c4e-9b0a-2f6d3e1c7a90'::uuid
+                    SQL,
+            ],
+            'int' => [
+                'expectedResult' => Exception\QueryDidNotReturnAString::class,
+                'sql' => <<<'SQL'
+                    SELECT 5
+                    SQL,
+            ],
+            'null' => [
+                'expectedResult' => Exception\QueryDidNotReturnAString::class,
+                'sql' => <<<'SQL'
+                    SELECT NULL
+                    SQL,
+            ],
+            'no result' => [
+                'expectedResult' => Exception\QueryDidNotReturnExactlyOneResult::class,
+                'sql' => <<<'SQL'
+                    WITH empty_table AS (
+                        SELECT 1
+                        WHERE false
+                    )
+                    SELECT *
+                    FROM empty_table
+                    SQL,
+            ],
+            'multiple results' => [
+                'expectedResult' => Exception\QueryDidNotReturnExactlyOneResult::class,
+                'sql' => <<<'SQL'
+                    SELECT 'a'
+                    UNION ALL
+                    SELECT 'b'
+                    SQL,
+            ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('fetchFloatDataProvider')]
+    public function fetch_float_works(
+        float | string $expectedResult,
+        string $sql,
+    ): void {
+        // -- Act & Assert
+        try {
+            $result = $this->decodingConnection->fetchFloat($sql);
+            self::assertSame($expectedResult, $result);
+        } catch (\Throwable $exception) {
+            if ($exception instanceof ExpectationFailedException) {
+                throw $exception;
+            }
+
+            $result = $exception::class;
+            self::assertSame($expectedResult, $result);
+        }
+    }
+
+    /**
+     * @return array<string, array{
+     *     expectedResult: float | string,
+     *     sql: string,
+     * }>
+     */
+    public static function fetchFloatDataProvider(): array
+    {
+        return [
+            'double precision' => [
+                'expectedResult' => 4.5,
+                'sql' => <<<'SQL'
+                    SELECT 4.5::double precision
+                    SQL,
+            ],
+            'average cast to double precision' => [
+                'expectedResult' => 2.5,
+                'sql' => <<<'SQL'
+                    SELECT AVG(value)::double precision
+                    FROM (VALUES (2), (3)) AS v(value)
+                    SQL,
+            ],
+            'numeric' => [
+                'expectedResult' => Exception\QueryDidNotReturnAFloat::class,
+                'sql' => <<<'SQL'
+                    SELECT 4.5
+                    SQL,
+            ],
+            'int' => [
+                'expectedResult' => Exception\QueryDidNotReturnAFloat::class,
+                'sql' => <<<'SQL'
+                    SELECT 5
+                    SQL,
+            ],
+            'null' => [
+                'expectedResult' => Exception\QueryDidNotReturnAFloat::class,
+                'sql' => <<<'SQL'
+                    SELECT NULL::double precision
+                    SQL,
+            ],
+            'no result' => [
+                'expectedResult' => Exception\QueryDidNotReturnExactlyOneResult::class,
+                'sql' => <<<'SQL'
+                    WITH empty_table AS (
+                        SELECT 1
+                        WHERE false
+                    )
+                    SELECT *
+                    FROM empty_table
+                    SQL,
+            ],
+            'multiple results' => [
+                'expectedResult' => Exception\QueryDidNotReturnExactlyOneResult::class,
+                'sql' => <<<'SQL'
+                    SELECT 1.5::double precision
+                    UNION ALL
+                    SELECT 2.5::double precision
                     SQL,
             ],
         ];

@@ -2,7 +2,7 @@
 
 Write plain SQL, get typed DTOs back. One method call executes the query, decodes the database values (like JSON or booleans) and denormalizes the result into your read models through the Symfony serializer – without an ORM, without hydration code and without losing any type information.
 
-[![Latest Stable Version](https://img.shields.io/badge/stable-1.0.0-blue)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
+[![Latest Stable Version](https://img.shields.io/badge/stable-1.1.0-blue)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
 [![PHP Version Require](https://img.shields.io/badge/php-8.5|8.6-5b5d95)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
 [![codecov](https://codecov.io/gh/digital-craftsman-de/deserializing-connection/branch/main/graph/badge.svg?token=BL0JKZYLBG)](https://codecov.io/gh/digital-craftsman-de/deserializing-connection)
 ![Packagist Downloads](https://img.shields.io/packagist/dt/digital-craftsman/deserializing-connection)
@@ -111,9 +111,11 @@ These are the available methods:
 |---|---|---|
 | `getOne` | One object | Throws `ElementNotFound` (or a custom exception) |
 | `findOne` | One object or `null` | Returns `null` |
-| `getOneFromSingleValue` | One object from a single column | Throws `ElementNotFound` (or a custom exception) |
-| `findOneFromSingleValue` | One object from a single column or `null` | Returns `null` |
+| `getOneFromSingleValue` | One object from the first column of the first row | Throws `ElementNotFound` (or a custom exception) |
+| `findOneFromSingleValue` | One object from the first column of the first row or `null` | Returns `null` |
 | `findArray` | A list of objects (or an array indexed by a custom key) | Returns an empty array |
+| `findArrayFromFirstColumn` | A list of objects, one from the first column of every row | Returns an empty array |
+| `getOneFromFirstColumn` | One object from the first column of all rows together (e.g. an id list) | Returns the object denormalized from an empty list |
 | `findGenerator` | A generator yielding the objects | Yields nothing |
 
 #### Custom exceptions
@@ -133,7 +135,7 @@ $user = $this->deserializingConnection->getOne(
 
 #### Single values
 
-Use `getOneFromSingleValue` or `findOneFromSingleValue` when the denormalization needs a single value instead of an associative array, for example for value objects:
+Use `getOneFromSingleValue` or `findOneFromSingleValue` when the denormalization needs a single value instead of an associative array, for example for value objects. The single value is the first column of the first row, further rows are ignored:
 
 ```php
 $duration = $this->deserializingConnection->getOneFromSingleValue(
@@ -145,6 +147,51 @@ $duration = $this->deserializingConnection->getOneFromSingleValue(
     class: Duration::class,
     parameters: [
         'projectId' => $projectId,
+    ],
+);
+```
+
+#### First column
+
+The single value methods only use the first row. To use the first column of all rows, there are two methods depending on whether every value becomes an object of its own or all values together become one object:
+
+| Method | Reads | Denormalizes | Result (example) |
+|---|---|---|---|
+| `getOneFromSingleValue` | First column of the first row | The value | `Duration` |
+| `findArrayFromFirstColumn` | First column of all rows | Every value on its own | `list<Duration>` |
+| `getOneFromFirstColumn` | First column of all rows | All values together as a list | `ProjectIdList` |
+
+Without them, a list would have to be aggregated into a single value in SQL (e.g. with `jsonb_agg`) and decoded as JSON.
+
+`findArrayFromFirstColumn` denormalizes the first column of every row on its own and returns a list of objects, for example a list of value objects:
+
+```php
+$durations = $this->deserializingConnection->findArrayFromFirstColumn(
+    sql: <<<'SQL'
+        SELECT duration
+        FROM projects
+        WHERE company_id = :companyId
+        SQL,
+    class: Duration::class,
+    parameters: [
+        'companyId' => $companyId,
+    ],
+);
+```
+
+`getOneFromFirstColumn` denormalizes the first column of all rows together as a list into one object. This way an id list comes directly from the database. Without a result, the object is denormalized from an empty list:
+
+```php
+$projectIds = $this->deserializingConnection->getOneFromFirstColumn(
+    sql: <<<'SQL'
+        SELECT project_id
+        FROM projects
+        WHERE company_id = :companyId
+        ORDER BY name
+        SQL,
+    class: ProjectIdList::class,
+    parameters: [
+        'companyId' => $companyId,
     ],
 );
 ```
@@ -293,6 +340,8 @@ When you only need scalar values or arrays, use the underlying `DecodingConnecti
 | `fetchFirstColumn` | The values of the first column |
 | `fetchInt` | An `int`, throws an exception when there isn't exactly one result or it isn't an integer |
 | `fetchBool` | A `bool`, throws an exception when there isn't exactly one result or it isn't a boolean |
+| `fetchString` | A `string`, throws an exception when there isn't exactly one result or it isn't a string |
+| `fetchFloat` | A `float`, throws an exception when there isn't exactly one result or it isn't a float (PDO returns `NUMERIC` as string, so cast it to `DOUBLE PRECISION`) |
 
 ### Normalizers
 
@@ -329,11 +378,13 @@ Any other normalizer registered in the Symfony serializer works as well.
 
 ### Symfony profiler
 
-When the Symfony profiler is enabled (through `symfony/web-profiler-bundle`), every usage of the `DeserializingConnection` and the `DecodingConnection` is shown in a separate "Deserializing Connection" panel. For every usage it contains:
+When the Symfony profiler is enabled (through `symfony/web-profiler-bundle`), every usage of the `DeserializingConnection`, the `DecodingConnection` and the `ResultSetMappingConnection` is shown in a separate "Deserializing Connection" panel. For every usage it contains:
 
 - The runnable query with all parameters inlined (highlighted like in the Doctrine panel, including a copy button).
 - The raw result, the result after decoding, the result after the result transformers and the denormalized objects, each with the duration of the step.
 - The configuration (class, decoder types, result transformers), the query duration, the location of the usage and a potential exception including the step in which it happened.
+
+As the ORM executes the query and hydrates the entities in one step, the usages of the `ResultSetMappingConnection` contain a single step "Query and hydration" with the entities and the duration of both. Its duration is part of the total time, but not of the query time.
 
 The runnable query is rendered with the same parser that Doctrine DBAL uses to expand parameters. Therefore, string literals, comments, casts (`::`), array parameters and escaped question marks (`??` for the JSONB operators of PostgreSQL) are handled the same way as when the query is executed. All values are inlined as string literals, which is how PDO sends parameters to PostgreSQL.
 
@@ -353,6 +404,40 @@ return App::config([
 ```
 
 In this case, the null tracer is used, and the panel isn't shown.
+
+### Result set mapping connection
+
+When you need managed entities instead of DTOs (for example to change them afterward), but the query can't be expressed with the finder methods of the repository (joins, JSONB operators, `NOT`, `ORDER BY RANDOM()`, …), the `ResultSetMappingConnection` gets them from native SQL. It builds the result set mapping and the native query of the Doctrine ORM, so only the SQL, the entity class, its table alias and the parameters need to be stated:
+
+```php
+$configurations = $this->resultSetMappingConnection->findArray(
+    sql: <<<'SQL'
+        SELECT push_notification_configuration.*
+        FROM push_notification_configuration
+        WHERE push_notification_configuration.device_identifier = :deviceIdentifier
+            AND NOT push_notification_configuration.user_id = :userId
+        SQL,
+    entityClass: PushNotificationConfiguration::class,
+    alias: 'push_notification_configuration',
+    parameters: [
+        'deviceIdentifier' => $deviceIdentifier,
+        'userId' => $userId,
+    ],
+);
+```
+
+| Method | Returns | When nothing is found |
+|---|---|---|
+| `getOne` | One entity | Throws `EntityNotFound` (or a custom exception through `otherwiseThrow`) |
+| `findOne` | One entity or `null` | Returns `null` |
+| `findArray` | A list of entities (or an array indexed by a custom key through `indexedBy`) | Returns an empty array |
+| `findGenerator` | A generator yielding the entities | Yields nothing |
+
+`findGenerator` hydrates the entities one after another while the generator is consumed, instead of all at once. The query is only executed when the generator is consumed. The entities stay managed by the entity manager, so when iterating over a lot of entities, clear the entity manager in between to keep the memory usage low.
+
+The SQL must select the wildcard of the alias (like `push_notification_configuration.*`, also quoted as `"push_notification_configuration".*`). Otherwise, an `AliasWildcardMissingInSQL` exception is thrown, as the entity would be hydrated from the wrong columns.
+
+The `ResultSetMappingConnection` is only registered when `doctrine/orm` is installed.
 
 ## Additional documentation
 

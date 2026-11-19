@@ -165,8 +165,9 @@ final readonly class DeserializingConnection
      * Can be used to get a single object from the database, returns null when no result is found. Use @see getOneFromSingleValue instead if
      * you want to throw an exception when no result is found.
      *
-     * The denormalization step expects a single value (will be most likely scalar and not an array). If instead you need an array with
-     * every column being a key in the array, you can use the @see findOne method instead.
+     * The single value is the first column of the first row (will be most likely scalar and not an array), further rows are ignored. If
+     * instead you need an array with every column being a key in the array, you can use the @see findOne method instead. To use the
+     * first column of all rows, use @see findArrayFromFirstColumn or @see getOneFromFirstColumn instead.
      *
      * @template T of object
      *
@@ -238,8 +239,9 @@ final readonly class DeserializingConnection
      * Can be used to get a single object from the database, but throws an exception if no result is found. Use @see findOneFromSingleValue
      * instead if you want to return null when no result is found.
      *
-     * The denormalization step expects a single value (will be most likely scalar and not an array). If instead you need an array with
-     * every column being a key in the array, you can use the @see getOne method instead.
+     * The single value is the first column of the first row (will be most likely scalar and not an array), further rows are ignored. If
+     * instead you need an array with every column being a key in the array, you can use the @see getOne method instead. To use the
+     * first column of all rows, use @see findArrayFromFirstColumn or @see getOneFromFirstColumn instead.
      *
      * @template T of object
      *
@@ -301,6 +303,106 @@ final readonly class DeserializingConnection
             }
 
             $trace->recordTransformedResult($result);
+
+            $denormalizedResult = $this->typedDenormalizer->denormalize($result, $class);
+
+            $trace->recordDenormalizedResult($denormalizedResult);
+
+            return $denormalizedResult;
+        } catch (\Throwable $exception) {
+            $trace->recordException($exception);
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * Can be used to get a list of objects from the database, where every object is denormalized from the first column of a row (like a
+     * list of ids or dates). Use @see findArray instead if you need an array with every column being a key in the array.
+     *
+     * Every value of the first column is decoded with the optional decoder type and denormalized on its own. To denormalize all values
+     * together into a single object (like an id list), use @see getOneFromFirstColumn instead.
+     *
+     * @template T of object
+     *
+     * @param non-empty-string                                                        $sql
+     * @param class-string<T>                                                         $class
+     * @param list<mixed>|array<string, mixed>                                        $parameters
+     * @param array<int<0, max>|string, ArrayParameterType|ParameterType|Type|string> $parameterTypes
+     *
+     * @return list<T>
+     */
+    #[\NoDiscard('as the result of the query would be lost')]
+    public function findArrayFromFirstColumn(
+        string $sql,
+        string $class,
+        array $parameters = [],
+        array $parameterTypes = [],
+        ?DTO\DecoderType $decoderType = null,
+    ): array {
+        $trace = $this->tracer->startTrace(__METHOD__, $sql, $parameters, $parameterTypes, [
+            'class' => $class,
+            'decoderType' => $decoderType,
+        ]);
+
+        try {
+            $result = $this->decodingConnection->fetchFirstColumn(
+                $sql,
+                $parameters,
+                $parameterTypes,
+                $decoderType,
+                trace: $trace,
+            );
+
+            $denormalizedResult = $this->typedDenormalizer->denormalizeArray($result, $class);
+
+            $trace->recordDenormalizedResult($denormalizedResult);
+
+            return $denormalizedResult;
+        } catch (\Throwable $exception) {
+            $trace->recordException($exception);
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * Can be used to get a single object from all values of the first column (like an id list). The values are decoded with the optional
+     * decoder type and denormalized together as a list into the class. As a list is denormalized even when the query has no result, there
+     * is always an object (e.g. an empty id list).
+     *
+     * To denormalize every value on its own into a list of objects, use @see findArrayFromFirstColumn instead.
+     *
+     * @template T of object
+     *
+     * @param non-empty-string                                                        $sql
+     * @param class-string<T>                                                         $class
+     * @param list<mixed>|array<string, mixed>                                        $parameters
+     * @param array<int<0, max>|string, ArrayParameterType|ParameterType|Type|string> $parameterTypes
+     *
+     * @return T
+     */
+    #[\NoDiscard('as the result of the query would be lost')]
+    public function getOneFromFirstColumn(
+        string $sql,
+        string $class,
+        array $parameters = [],
+        array $parameterTypes = [],
+        ?DTO\DecoderType $decoderType = null,
+    ): object {
+        $trace = $this->tracer->startTrace(__METHOD__, $sql, $parameters, $parameterTypes, [
+            'class' => $class,
+            'decoderType' => $decoderType,
+        ]);
+
+        try {
+            $result = $this->decodingConnection->fetchFirstColumn(
+                $sql,
+                $parameters,
+                $parameterTypes,
+                $decoderType,
+                trace: $trace,
+            );
 
             $denormalizedResult = $this->typedDenormalizer->denormalize($result, $class);
 
