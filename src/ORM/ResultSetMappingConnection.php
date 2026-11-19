@@ -10,6 +10,8 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NativeQuery;
+use Doctrine\ORM\Proxy\DefaultProxyClassNameResolver;
+use Doctrine\ORM\Query\ParameterTypeInferer;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 
 /**
@@ -18,6 +20,9 @@ use Doctrine\ORM\Query\ResultSetMappingBuilder;
  * (e.g. "event.*"), otherwise the entity would be hydrated from the wrong columns.
  *
  * Only registered as a service when doctrine/orm is installed.
+ *
+ * Objects that aren't entities (like ids, id lists or other value objects) are passed with an explicit type, so that the ORM
+ * doesn't try to resolve them as entities (see resolveParameterWithoutType).
  *
  * Every usage is traced for the Symfony profiler. As the ORM executes the query and hydrates the entities in one step, the trace only
  * contains the hydrated entities with the duration of both.
@@ -283,14 +288,80 @@ final readonly class ResultSetMappingConnection
 
         /** @psalm-suppress MixedAssignment */
         foreach ($parameters as $key => $value) {
+            $type = $parameterTypes[$key] ?? null;
+            if ($type === null) {
+                [$value, $type] = $this->resolveParameterWithoutType($value);
+            }
+
             $query->setParameter(
                 key: $key,
                 value: $value,
-                type: $parameterTypes[$key] ?? null,
+                type: $type,
             );
         }
 
         return $query;
+    }
+
+    /**
+     * Without a type, the ORM tries to resolve every object parameter as an entity (to use its identifier instead). For an object that
+     * isn't an entity, this fails with a mapping exception (which is silenced), and for a traversable it's repeated for every item. As
+     * this is expensive (especially for long id lists), the ORM handling is skipped by stating the type for the ORM:
+     *
+     * - An object that isn't an entity, a traversable or a backed enum is passed as it is, with the type the ORM would infer for it
+     *   (e.g. a string for an id). That way the DBAL connection (and with it a wrapper class) gets the object itself.
+     * - A traversable that isn't an entity (e.g. an id list) is converted into a list of its items, with the array type the ORM would
+     *   infer for it. This is only done when the items are scalars or objects that aren't entities, traversables or backed enums.
+     *
+     * Everything else (scalars, arrays, entities, backed enums and traversables with other items) is left to the ORM without a type.
+     *
+     * @return array{0: mixed, 1: ParameterType|ArrayParameterType|string|null}
+     */
+    private function resolveParameterWithoutType(mixed $value): array
+    {
+        if (!is_object($value)
+            || $value instanceof \BackedEnum
+            || $this->isEntity($value)
+        ) {
+            return [$value, null];
+        }
+
+        if (!$value instanceof \Traversable) {
+            return [$value, ParameterTypeInferer::inferType($value)];
+        }
+
+        $items = [];
+        $itemClasses = [];
+        /** @psalm-suppress MixedAssignment */
+        foreach ($value as $item) {
+            if (is_array($item)
+                || $item instanceof \Traversable
+                || $item instanceof \BackedEnum
+            ) {
+                return [$value, null];
+            }
+
+            if (is_object($item)) {
+                $itemClass = DefaultProxyClassNameResolver::getClass($item);
+                $itemClasses[$itemClass] = $itemClass;
+            }
+
+            $items[] = $item;
+        }
+
+        // Every class is only checked once, as all items of an id list share the same class.
+        foreach ($itemClasses as $itemClass) {
+            if (!$this->entityManager->getMetadataFactory()->isTransient($itemClass)) {
+                return [$value, null];
+            }
+        }
+
+        return [$items, ParameterTypeInferer::inferType($items)];
+    }
+
+    private function isEntity(object $value): bool
+    {
+        return !$this->entityManager->getMetadataFactory()->isTransient(DefaultProxyClassNameResolver::getClass($value));
     }
 
     /**

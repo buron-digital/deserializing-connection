@@ -26,6 +26,15 @@ abstract class ConnectionTestCase extends TestCase
             'host' => getenv('DB_HOST'),
             'dbname' => getenv('DB_DATABASE'),
             'driver' => 'pdo_pgsql',
+            'wrapperClass' => static::connectionWrapperClass(),
         ]);
+    }
+
+    /**
+     * @return class-string<Connection>
+     */
+    protected static function connectionWrapperClass(): string
+    {
+        return Connection::class;
     }
 }

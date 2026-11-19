@@ -2,7 +2,7 @@
 
 Write plain SQL, get typed DTOs back. One method call executes the query, decodes the database values (like JSON or booleans) and denormalizes the result into your read models through the Symfony serializer – without an ORM, without hydration code and without losing any type information.
 
-[![Latest Stable Version](https://img.shields.io/badge/stable-1.1.0-blue)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
+[![Latest Stable Version](https://img.shields.io/badge/stable-1.1.1-blue)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
 [![PHP Version Require](https://img.shields.io/badge/php-8.5|8.6-5b5d95)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
 [![codecov](https://codecov.io/gh/digital-craftsman-de/deserializing-connection/branch/main/graph/badge.svg?token=BL0JKZYLBG)](https://codecov.io/gh/digital-craftsman-de/deserializing-connection)
 ![Packagist Downloads](https://img.shields.io/packagist/dt/digital-craftsman/deserializing-connection)
@@ -436,6 +436,13 @@ $configurations = $this->resultSetMappingConnection->findArray(
 `findGenerator` hydrates the entities one after another while the generator is consumed, instead of all at once. The query is only executed when the generator is consumed. The entities stay managed by the entity manager, so when iterating over a lot of entities, clear the entity manager in between to keep the memory usage low.
 
 The SQL must select the wildcard of the alias (like `push_notification_configuration.*`, also quoted as `"push_notification_configuration".*`). Otherwise, an `AliasWildcardMissingInSQL` exception is thrown, as the entity would be hydrated from the wrong columns.
+
+Without a parameter type, the ORM tries to resolve every object parameter as an entity (to use its identifier instead), which is expensive for objects that aren't entities, especially for long id lists. Therefore, the `ResultSetMappingConnection` states the type itself for objects that aren't entities:
+
+- Value objects (like ids) are passed to the DBAL connection as they are, with the type the ORM would infer for them (a string, or the date time type for date times).
+- Traversables (like id lists) are passed as list of their items, with the array type the ORM would infer for them. This is only done when the items are scalars or value objects.
+
+Entities, backed enums and traversables containing entities, backed enums, arrays or traversables are still resolved by the ORM. An explicit parameter type is always used as it is.
 
 The `ResultSetMappingConnection` is only registered when `doctrine/orm` is installed.
 
