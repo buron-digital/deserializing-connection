@@ -165,8 +165,9 @@ final readonly class DeserializingConnection
      * Can be used to get a single object from the database, returns null when no result is found. Use @see getOneFromSingleValue instead if
      * you want to throw an exception when no result is found.
      *
-     * The denormalization step expects a single value (will be most likely scalar and not an array). If instead you need an array with
-     * every column being a key in the array, you can use the @see findOne method instead.
+     * The single value is the first column of the first row (will be most likely scalar and not an array), further rows are ignored. If
+     * instead you need an array with every column being a key in the array, you can use the @see findOne method instead. To use the
+     * first column of all rows, use @see findArrayFromFirstColumn or @see getOneFromFirstColumn instead.
      *
      * @template T of object
      *
@@ -238,8 +239,9 @@ final readonly class DeserializingConnection
      * Can be used to get a single object from the database, but throws an exception if no result is found. Use @see findOneFromSingleValue
      * instead if you want to return null when no result is found.
      *
-     * The denormalization step expects a single value (will be most likely scalar and not an array). If instead you need an array with
-     * every column being a key in the array, you can use the @see getOne method instead.
+     * The single value is the first column of the first row (will be most likely scalar and not an array), further rows are ignored. If
+     * instead you need an array with every column being a key in the array, you can use the @see getOne method instead. To use the
+     * first column of all rows, use @see findArrayFromFirstColumn or @see getOneFromFirstColumn instead.
      *
      * @template T of object
      *
@@ -315,7 +317,7 @@ final readonly class DeserializingConnection
     }
 
     /**
-     * Can be used to get a list of objects from the database, where every object is denormalized from the single value of a row (like a
+     * Can be used to get a list of objects from the database, where every object is denormalized from the first column of a row (like a
      * list of ids or dates). Use @see findArray instead if you need an array with every column being a key in the array.
      *
      * Every value of the first column is decoded with the optional decoder type and denormalized on its own. To denormalize all values
@@ -331,7 +333,7 @@ final readonly class DeserializingConnection
      * @return list<T>
      */
     #[\NoDiscard('as the result of the query would be lost')]
-    public function findArrayFromSingleValue(
+    public function findArrayFromFirstColumn(
         string $sql,
         string $class,
         array $parameters = [],
@@ -369,7 +371,7 @@ final readonly class DeserializingConnection
      * decoder type and denormalized together as a list into the class. As a list is denormalized even when the query has no result, there
      * is always an object (e.g. an empty id list).
      *
-     * To denormalize every value on its own into a list of objects, use @see findArrayFromSingleValue instead.
+     * To denormalize every value on its own into a list of objects, use @see findArrayFromFirstColumn instead.
      *
      * @template T of object
      *

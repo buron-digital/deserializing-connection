@@ -622,7 +622,7 @@ final class DeserializingConnectionTest extends ConnectionTestCase
     }
 
     #[Test]
-    public function find_array_from_single_value_works(): void
+    public function find_array_from_first_column_works(): void
     {
         // -- Arrange
         $expectedResult = [
@@ -631,7 +631,7 @@ final class DeserializingConnectionTest extends ConnectionTestCase
         ];
 
         // -- Act
-        $userIds = $this->deserializingConnection->findArrayFromSingleValue(
+        $userIds = $this->deserializingConnection->findArrayFromFirstColumn(
             sql: <<<'SQL'
                 SELECT user_id
                 FROM (VALUES
@@ -653,7 +653,7 @@ final class DeserializingConnectionTest extends ConnectionTestCase
     }
 
     #[Test]
-    public function find_array_from_single_value_works_with_decoding(): void
+    public function find_array_from_first_column_works_with_decoding(): void
     {
         // -- Arrange
         $expectedResult = [
@@ -662,7 +662,7 @@ final class DeserializingConnectionTest extends ConnectionTestCase
         ];
 
         // -- Act
-        $durations = $this->deserializingConnection->findArrayFromSingleValue(
+        $durations = $this->deserializingConnection->findArrayFromFirstColumn(
             sql: <<<'SQL'
                 SELECT duration
                 FROM (VALUES ('15'), ('20')) AS durations(duration)
@@ -676,10 +676,10 @@ final class DeserializingConnectionTest extends ConnectionTestCase
     }
 
     #[Test]
-    public function find_array_from_single_value_works_without_results(): void
+    public function find_array_from_first_column_works_without_results(): void
     {
         // -- Act
-        $userIds = $this->deserializingConnection->findArrayFromSingleValue(
+        $userIds = $this->deserializingConnection->findArrayFromFirstColumn(
             sql: <<<'SQL'
                 SELECT '417df760-0d16-408f-8201-ec7760dee9fb'
                 WHERE false

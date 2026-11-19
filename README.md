@@ -111,11 +111,11 @@ These are the available methods:
 |---|---|---|
 | `getOne` | One object | Throws `ElementNotFound` (or a custom exception) |
 | `findOne` | One object or `null` | Returns `null` |
-| `getOneFromSingleValue` | One object from a single column | Throws `ElementNotFound` (or a custom exception) |
-| `findOneFromSingleValue` | One object from a single column or `null` | Returns `null` |
+| `getOneFromSingleValue` | One object from the first column of the first row | Throws `ElementNotFound` (or a custom exception) |
+| `findOneFromSingleValue` | One object from the first column of the first row or `null` | Returns `null` |
 | `findArray` | A list of objects (or an array indexed by a custom key) | Returns an empty array |
-| `findArrayFromSingleValue` | A list of objects, each from the single column of a row | Returns an empty array |
-| `getOneFromFirstColumn` | One object from all values of the first column (e.g. an id list) | Returns the object denormalized from an empty list |
+| `findArrayFromFirstColumn` | A list of objects, one from the first column of every row | Returns an empty array |
+| `getOneFromFirstColumn` | One object from the first column of all rows together (e.g. an id list) | Returns the object denormalized from an empty list |
 | `findGenerator` | A generator yielding the objects | Yields nothing |
 
 #### Custom exceptions
@@ -135,7 +135,7 @@ $user = $this->deserializingConnection->getOne(
 
 #### Single values
 
-Use `getOneFromSingleValue` or `findOneFromSingleValue` when the denormalization needs a single value instead of an associative array, for example for value objects:
+Use `getOneFromSingleValue` or `findOneFromSingleValue` when the denormalization needs a single value instead of an associative array, for example for value objects. The single value is the first column of the first row, further rows are ignored:
 
 ```php
 $duration = $this->deserializingConnection->getOneFromSingleValue(
@@ -147,6 +147,51 @@ $duration = $this->deserializingConnection->getOneFromSingleValue(
     class: Duration::class,
     parameters: [
         'projectId' => $projectId,
+    ],
+);
+```
+
+#### First column
+
+The single value methods only use the first row. To use the first column of all rows, there are two methods depending on whether every value becomes an object of its own or all values together become one object:
+
+| Method | Reads | Denormalizes | Result (example) |
+|---|---|---|---|
+| `getOneFromSingleValue` | First column of the first row | The value | `Duration` |
+| `findArrayFromFirstColumn` | First column of all rows | Every value on its own | `list<Duration>` |
+| `getOneFromFirstColumn` | First column of all rows | All values together as a list | `ProjectIdList` |
+
+Without them, a list would have to be aggregated into a single value in SQL (e.g. with `jsonb_agg`) and decoded as JSON.
+
+`findArrayFromFirstColumn` denormalizes the first column of every row on its own and returns a list of objects, for example a list of value objects:
+
+```php
+$durations = $this->deserializingConnection->findArrayFromFirstColumn(
+    sql: <<<'SQL'
+        SELECT duration
+        FROM projects
+        WHERE company_id = :companyId
+        SQL,
+    class: Duration::class,
+    parameters: [
+        'companyId' => $companyId,
+    ],
+);
+```
+
+`getOneFromFirstColumn` denormalizes the first column of all rows together as a list into one object. This way an id list comes directly from the database. Without a result, the object is denormalized from an empty list:
+
+```php
+$projectIds = $this->deserializingConnection->getOneFromFirstColumn(
+    sql: <<<'SQL'
+        SELECT project_id
+        FROM projects
+        WHERE company_id = :companyId
+        ORDER BY name
+        SQL,
+    class: ProjectIdList::class,
+    parameters: [
+        'companyId' => $companyId,
     ],
 );
 ```
@@ -167,39 +212,6 @@ $usersById = $this->deserializingConnection->findArray(
 ```
 
 `findGenerator` yields the objects one after another. The query is only executed when the generator is consumed.
-
-`findArrayFromSingleValue` returns a list of objects, each denormalized from the single column of a row, for example a list of value objects:
-
-```php
-$durations = $this->deserializingConnection->findArrayFromSingleValue(
-    sql: <<<'SQL'
-        SELECT duration
-        FROM projects
-        WHERE company_id = :companyId
-        SQL,
-    class: Duration::class,
-    parameters: [
-        'companyId' => $companyId,
-    ],
-);
-```
-
-`getOneFromFirstColumn` denormalizes all values of the first column together as a list into one object. This way an id list comes directly from the database. Without a result, the object is denormalized from an empty list:
-
-```php
-$projectIds = $this->deserializingConnection->getOneFromFirstColumn(
-    sql: <<<'SQL'
-        SELECT project_id
-        FROM projects
-        WHERE company_id = :companyId
-        ORDER BY name
-        SQL,
-    class: ProjectIdList::class,
-    parameters: [
-        'companyId' => $companyId,
-    ],
-);
-```
 
 #### Unused results
 

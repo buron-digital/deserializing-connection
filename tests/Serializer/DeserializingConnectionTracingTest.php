@@ -230,10 +230,10 @@ final class DeserializingConnectionTracingTest extends ConnectionTestCase
     }
 
     #[Test]
-    public function find_array_from_single_value_is_traced(): void
+    public function find_array_from_first_column_is_traced(): void
     {
         // -- Act
-        (void) $this->deserializingConnection->findArrayFromSingleValue(
+        (void) $this->deserializingConnection->findArrayFromFirstColumn(
             sql: "SELECT duration FROM (VALUES ('15'), ('20')) AS durations(duration)",
             class: Duration::class,
             decoderType: DTO\DecoderType::INT,
@@ -241,7 +241,7 @@ final class DeserializingConnectionTracingTest extends ConnectionTestCase
 
         // -- Assert
         $trace = $this->onlyTrace();
-        self::assertSame(DeserializingConnection::class.'::findArrayFromSingleValue', $trace->method);
+        self::assertSame(DeserializingConnection::class.'::findArrayFromFirstColumn', $trace->method);
         self::assertSame([
             'class' => Duration::class,
             'decoderType' => DTO\DecoderType::INT,
@@ -505,8 +505,8 @@ final class DeserializingConnectionTracingTest extends ConnectionTestCase
                 ),
                 Exception\ElementNotFound::class,
             ],
-            'find array from single value' => [
-                static fn (DeserializingConnection $connection): mixed => $connection->findArrayFromSingleValue(
+            'find array from first column' => [
+                static fn (DeserializingConnection $connection): mixed => $connection->findArrayFromFirstColumn(
                     sql: "SELECT 'invalid'",
                     class: ProjectId::class,
                 ),
