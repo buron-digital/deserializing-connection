@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0
 
 - Added `DecodingConnection->fetchString`, which returns a single string and throws `QueryDidNotReturnExactlyOneResult` or the new `QueryDidNotReturnAString` exception when there is not exactly one value or it isn't a string.
 
