@@ -77,6 +77,7 @@ final class DeserializingConnectionDataCollectorTest extends ConnectionTestCase
         self::assertSame([ProfilingTrace::STAGE_RAW, ProfilingTrace::STAGE_DENORMALIZED], array_keys($successfulTraceData['stages']));
         self::assertSame(['id' => (string) $userId], $successfulTraceData['stages'][ProfilingTrace::STAGE_RAW]->getValue(true));
         self::assertInstanceOf(Data::class, $successfulTraceData['stages'][ProfilingTrace::STAGE_DENORMALIZED]);
+        self::assertSame(0, $successfulTraceData['numberOfOmittedDenormalizedItems']);
         self::assertNull($successfulTraceData['exception']);
         self::assertNull($successfulTraceData['exceptionClass']);
         self::assertNull($successfulTraceData['exceptionMessage']);
@@ -91,6 +92,30 @@ final class DeserializingConnectionDataCollectorTest extends ConnectionTestCase
         self::assertInstanceOf(Data::class, $failedTraceData['exception']);
         self::assertSame(\RuntimeException::class, $failedTraceData['exceptionClass']);
         self::assertSame('Failed', $failedTraceData['exceptionMessage']);
+    }
+
+    #[Test]
+    public function late_collect_contains_number_of_omitted_denormalized_items(): void
+    {
+        // -- Arrange
+        $trace = $this->tracer->startTrace(
+            'DeserializingConnection::findGenerator',
+            'SELECT 1',
+            [],
+            [],
+            [],
+        );
+        for ($i = 0; $i < ProfilingTrace::MAX_RECORDED_DENORMALIZED_ITEMS + 2; ++$i) {
+            $trace->addDenormalizedItem(UserId::generateRandom());
+        }
+
+        // -- Act
+        $this->dataCollector->lateCollect();
+
+        // -- Assert
+        $traceData = $this->dataCollector->getTraces()[0];
+        self::assertCount(ProfilingTrace::MAX_RECORDED_DENORMALIZED_ITEMS, $traceData['stages'][ProfilingTrace::STAGE_DENORMALIZED]);
+        self::assertSame(2, $traceData['numberOfOmittedDenormalizedItems']);
     }
 
     #[Test]

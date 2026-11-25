@@ -28,6 +28,7 @@ final class ProfilingTraceTest extends TestCase
         self::assertSame([], $trace->stages);
         self::assertSame([], $trace->stageDurationsInNanoseconds);
         self::assertNull($trace->exception);
+        self::assertSame(0, $trace->numberOfOmittedDenormalizedItems);
     }
 
     #[Test]
@@ -68,6 +69,58 @@ final class ProfilingTraceTest extends TestCase
         self::assertSame([
             ProfilingTrace::STAGE_DENORMALIZED => [$userId1, $userId2],
         ], $trace->stages);
+    }
+
+    /**
+     * Only the first items are kept, so that the trace doesn't keep all items of a generator in memory.
+     */
+    #[Test]
+    public function add_denormalized_item_only_records_the_first_items(): void
+    {
+        // -- Arrange
+        $trace = self::trace();
+        $recordedItems = [];
+        for ($i = 0; $i < 100; ++$i) {
+            $recordedItems[] = UserId::generateRandom();
+        }
+
+        // -- Act
+        foreach ($recordedItems as $item) {
+            $trace->addDenormalizedItem($item);
+        }
+        $trace->addDenormalizedItem(UserId::generateRandom());
+        $trace->addDenormalizedItem(UserId::generateRandom());
+
+        // -- Assert
+        self::assertSame([
+            ProfilingTrace::STAGE_DENORMALIZED => $recordedItems,
+        ], $trace->stages);
+        self::assertSame(2, $trace->numberOfOmittedDenormalizedItems);
+    }
+
+    /**
+     * The duration of the items that aren't recorded is still part of the duration of the stage.
+     */
+    #[Test]
+    public function durations_of_omitted_denormalized_items_are_summed_up(): void
+    {
+        // -- Arrange
+        $trace = self::trace();
+        for ($i = 0; $i < ProfilingTrace::MAX_RECORDED_DENORMALIZED_ITEMS; ++$i) {
+            $trace->addDenormalizedItem(UserId::generateRandom());
+        }
+
+        // -- Act
+        $trace->startItemDenormalization();
+        usleep(20_000);
+        $trace->addDenormalizedItem(UserId::generateRandom());
+
+        // -- Assert
+        self::assertDurationBetween(
+            20_000_000,
+            50_000_000,
+            $trace->stageDurationsInNanoseconds[ProfilingTrace::STAGE_DENORMALIZED],
+        );
     }
 
     #[Test]

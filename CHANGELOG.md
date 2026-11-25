@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1
+
+- Fixed `ResultSetMappingConnection` failing with `Cannot traverse an already closed generator` when a generator is used as a parameter without a type and its items are resolved by the ORM (entities, backed enums, arrays or traversables). Traversables are now only iterated once and always passed on as a list of their items. Their keys aren't passed on anymore, which doesn't change the query.
+- The profiler only keeps the first 100 denormalized objects of a generator (`DeserializingConnection->findGenerator` and `ResultSetMappingConnection->findGenerator`), so that it doesn't keep all of them in memory until the end of the request. Before, clearing the entity manager while iterating over `ResultSetMappingConnection->findGenerator` didn't free any memory when the profiler was enabled. The panel shows how many objects were omitted, the duration includes the time of all of them. The duration is now summed up continuously instead of being recalculated from all previous items for every item.
+
 ## 2.0.0
 
 - **[Breaking change](./UPGRADE.md#renamed-package-and-namespace)**: Renamed the package from `digital-craftsman/deserializing-connection` to `buron-digital/deserializing-connection` and the namespace from `DigitalCraftsman\DeserializingConnection` to `BuronDigital\DeserializingConnection`. Apart from the names, nothing changed.

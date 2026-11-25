@@ -185,6 +185,9 @@
                                     <div class="deserializing-connection-step-content">
                                         <span class="deserializing-connection-step-label">{{ label }}</span>
                                         {{ profiler_dump(trace.stages[stage], maxDepth=0) }}
+                                        {% if stage == 'denormalized' and (trace.numberOfOmittedDenormalizedItems ?? 0) > 0 %}
+                                            <span class="text-small text-muted">Only the first {{ trace.stages[stage]|length }} items are shown, {{ trace.numberOfOmittedDenormalizedItems }} more items were omitted.</span>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
