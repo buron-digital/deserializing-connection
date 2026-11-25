@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer\Exception;
+namespace BuronDigital\DeserializingConnection\Serializer\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 

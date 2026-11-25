@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0
+
+- **[Breaking change](./UPGRADE.md#renamed-package-and-namespace)**: Renamed the package from `digital-craftsman/deserializing-connection` to `buron-digital/deserializing-connection` and the namespace from `DigitalCraftsman\DeserializingConnection` to `BuronDigital\DeserializingConnection`. Apart from the names, nothing changed.
+- Switched the dependency `digital-craftsman/self-aware-normalizers` to `buron-digital/self-aware-normalizers` (`^2.0.0`).
+
 ## 1.1.1
 
 - `ResultSetMappingConnection` states the parameter type for objects that aren't entities, so that the ORM doesn't try to resolve them as entities. Value objects (like ids) are passed to the DBAL connection as they are, traversables (like id lists) as list of their items, both with the type the ORM would infer for them. Entities, backed enums and traversables containing entities, backed enums, arrays or traversables are still resolved by the ORM. The result of the queries doesn't change, but especially long id lists are bound considerably faster.

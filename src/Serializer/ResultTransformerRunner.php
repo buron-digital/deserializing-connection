@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer;
+namespace BuronDigital\DeserializingConnection\Serializer;
 
 final readonly class ResultTransformerRunner
 {

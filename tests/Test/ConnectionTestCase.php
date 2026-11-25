@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Test;
+namespace BuronDigital\DeserializingConnection\Test;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;

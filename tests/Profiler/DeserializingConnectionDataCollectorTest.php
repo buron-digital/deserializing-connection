@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Profiler;
+namespace BuronDigital\DeserializingConnection\Profiler;
 
-use DigitalCraftsman\DeserializingConnection\Serializer\DTO\DecoderType;
-use DigitalCraftsman\DeserializingConnection\Test\ConnectionTestCase;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\UserId;
+use BuronDigital\DeserializingConnection\Serializer\DTO\DecoderType;
+use BuronDigital\DeserializingConnection\Test\ConnectionTestCase;
+use BuronDigital\DeserializingConnection\Test\ValueObject\UserId;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Request;
@@ -120,7 +120,7 @@ final class DeserializingConnectionDataCollectorTest extends ConnectionTestCase
         $dump = (string) $dumper->dump($this->dataCollector->getTraces()[0]['configuration'], true);
 
         self::assertStringContainsString(
-            sprintf('<span class=sf-dump-str title="64 characters">%s</span>', UserId::class),
+            sprintf('<span class=sf-dump-str title="%d characters">%s</span>', strlen(UserId::class), UserId::class),
             html_entity_decode($dump),
         );
         self::assertStringContainsString(

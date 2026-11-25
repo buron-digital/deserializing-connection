@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\DependencyInjection;
+namespace BuronDigital\DeserializingConnection\DependencyInjection;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\FileLocator;

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\ORM;
+namespace BuronDigital\DeserializingConnection\ORM;
 
-use DigitalCraftsman\DeserializingConnection\Profiler\ProfilingTrace;
-use DigitalCraftsman\DeserializingConnection\Profiler\ProfilingTracer;
-use DigitalCraftsman\DeserializingConnection\Profiler\RunnableQueryRenderer;
-use DigitalCraftsman\DeserializingConnection\Test\Entity\Project;
-use DigitalCraftsman\DeserializingConnection\Test\EntityManagerTestCase;
+use BuronDigital\DeserializingConnection\Profiler\ProfilingTrace;
+use BuronDigital\DeserializingConnection\Profiler\ProfilingTracer;
+use BuronDigital\DeserializingConnection\Profiler\RunnableQueryRenderer;
+use BuronDigital\DeserializingConnection\Test\Entity\Project;
+use BuronDigital\DeserializingConnection\Test\EntityManagerTestCase;
 use Doctrine\DBAL\ArrayParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

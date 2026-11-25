@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Profiler;
+namespace BuronDigital\DeserializingConnection\Profiler;
 
-use DigitalCraftsman\DeserializingConnection\Serializer\DecodingConnection;
-use DigitalCraftsman\DeserializingConnection\Serializer\DeserializingConnection;
-use DigitalCraftsman\DeserializingConnection\Serializer\ResultTransformerRunner;
-use DigitalCraftsman\DeserializingConnection\Serializer\TypedDenormalizer;
-use DigitalCraftsman\DeserializingConnection\Test\ConnectionTestCase;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\UserId;
+use BuronDigital\DeserializingConnection\Serializer\DecodingConnection;
+use BuronDigital\DeserializingConnection\Serializer\DeserializingConnection;
+use BuronDigital\DeserializingConnection\Serializer\ResultTransformerRunner;
+use BuronDigital\DeserializingConnection\Serializer\TypedDenormalizer;
+use BuronDigital\DeserializingConnection\Test\ConnectionTestCase;
+use BuronDigital\DeserializingConnection\Test\ValueObject\UserId;
 use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

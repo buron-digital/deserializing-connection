@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer;
+namespace BuronDigital\DeserializingConnection\Serializer;
 
-use DigitalCraftsman\DeserializingConnection\Profiler\ProfilingTrace;
-use DigitalCraftsman\DeserializingConnection\Profiler\ProfilingTracer;
-use DigitalCraftsman\DeserializingConnection\Profiler\RunnableQueryRenderer;
-use DigitalCraftsman\DeserializingConnection\Test\ConnectionTestCase;
-use DigitalCraftsman\DeserializingConnection\Test\DTO\Company;
-use DigitalCraftsman\DeserializingConnection\Test\DTO\Duration;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\CompanyId;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectId;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectIdList;
-use DigitalCraftsman\Ids\ValueObject\Exception\InvalidId;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\IntNormalizableNormalizer;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
+use BuronDigital\DeserializingConnection\Profiler\ProfilingTrace;
+use BuronDigital\DeserializingConnection\Profiler\ProfilingTracer;
+use BuronDigital\DeserializingConnection\Profiler\RunnableQueryRenderer;
+use BuronDigital\DeserializingConnection\Test\ConnectionTestCase;
+use BuronDigital\DeserializingConnection\Test\DTO\Company;
+use BuronDigital\DeserializingConnection\Test\DTO\Duration;
+use BuronDigital\DeserializingConnection\Test\ValueObject\CompanyId;
+use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectId;
+use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectIdList;
+use BuronDigital\Ids\ValueObject\Exception\InvalidId;
+use BuronDigital\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
+use BuronDigital\SelfAwareNormalizers\Serializer\IntNormalizableNormalizer;
+use BuronDigital\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;

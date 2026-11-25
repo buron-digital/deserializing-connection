@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\ORM;
+namespace BuronDigital\DeserializingConnection\ORM;
 
-use DigitalCraftsman\DeserializingConnection\Profiler\NullTracer;
-use DigitalCraftsman\DeserializingConnection\Profiler\Tracer;
+use BuronDigital\DeserializingConnection\Profiler\NullTracer;
+use BuronDigital\DeserializingConnection\Profiler\Tracer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;

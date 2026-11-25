@@ -1,40 +1,40 @@
 services:
 
-  DigitalCraftsman\DeserializingConnection\Serializer\DeserializingConnection:
+  BuronDigital\DeserializingConnection\Serializer\DeserializingConnection:
     autowire: true
     autoconfigure: true
 
-  DigitalCraftsman\DeserializingConnection\Serializer\DecodingConnection:
+  BuronDigital\DeserializingConnection\Serializer\DecodingConnection:
     autowire: true
     autoconfigure: true
 
-  DigitalCraftsman\DeserializingConnection\Serializer\TypedDenormalizer:
+  BuronDigital\DeserializingConnection\Serializer\TypedDenormalizer:
     autowire: true
     autoconfigure: true
 
-  DigitalCraftsman\DeserializingConnection\Serializer\ResultTransformerRunner:
+  BuronDigital\DeserializingConnection\Serializer\ResultTransformerRunner:
     autowire: true
     autoconfigure: true
 
   # Profiler
   # Replaced with the profiling tracer through the ProfilerPass when the Symfony profiler is available.
 
-  DigitalCraftsman\DeserializingConnection\Profiler\NullTracer: ~
+  BuronDigital\DeserializingConnection\Profiler\NullTracer: ~
 
-  DigitalCraftsman\DeserializingConnection\Profiler\Tracer:
-    alias: DigitalCraftsman\DeserializingConnection\Profiler\NullTracer
+  BuronDigital\DeserializingConnection\Profiler\Tracer:
+    alias: BuronDigital\DeserializingConnection\Profiler\NullTracer
 
-  DigitalCraftsman\DeserializingConnection\Profiler\ProfilingTracer:
+  BuronDigital\DeserializingConnection\Profiler\ProfilingTracer:
     autowire: true
     autoconfigure: true
 
-  DigitalCraftsman\DeserializingConnection\Profiler\RunnableQueryRenderer:
+  BuronDigital\DeserializingConnection\Profiler\RunnableQueryRenderer:
     autowire: true
     autoconfigure: true
 
-  DigitalCraftsman\DeserializingConnection\Profiler\SqlHighlighter: ~
+  BuronDigital\DeserializingConnection\Profiler\SqlHighlighter: ~
 
-  DigitalCraftsman\DeserializingConnection\Profiler\DeserializingConnectionDataCollector:
+  BuronDigital\DeserializingConnection\Profiler\DeserializingConnectionDataCollector:
     autowire: true
     tags:
       - name: data_collector

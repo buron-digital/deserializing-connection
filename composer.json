@@ -1,17 +1,17 @@
 {
-  "name": "digital-craftsman/deserializing-connection",
+  "name": "buron-digital/deserializing-connection",
   "description": "Get DTOs directly from the database",
   "type": "symfony-bundle",
   "require": {
     "php": "8.5.*|8.6.*",
-    "digital-craftsman/self-aware-normalizers": "^1.4.0",
+    "buron-digital/self-aware-normalizers": "^2.0.0",
     "doctrine/dbal": "^4.5",
     "doctrine/sql-formatter": "^1.5",
     "symfony/framework-bundle": "^7.4|^8.0",
     "symfony/serializer": "^7.4|^8.0"
   },
   "require-dev": {
-    "digital-craftsman/ids": "^2.5.0",
+    "buron-digital/ids": "^3.0.0",
     "doctrine/orm": "^3.7",
     "friendsofphp/php-cs-fixer": "^3.95",
     "infection/infection": "^0.35",
@@ -25,19 +25,19 @@
   },
   "autoload": {
     "psr-4": {
-      "DigitalCraftsman\\DeserializingConnection\\": "src/"
+      "BuronDigital\\DeserializingConnection\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "DigitalCraftsman\\DeserializingConnection\\": "tests/"
+      "BuronDigital\\DeserializingConnection\\": "tests/"
     }
   },
   "license": "MIT",
   "authors": [
     {
       "name": "Christian Kolb",
-      "email": "info@digital-craftsman.de"
+      "email": "info@buron.digital"
     }
   ],
   "config": {

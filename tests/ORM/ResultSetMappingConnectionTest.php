@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\ORM;
+namespace BuronDigital\DeserializingConnection\ORM;
 
-use DigitalCraftsman\DeserializingConnection\Test\Entity\Project;
-use DigitalCraftsman\DeserializingConnection\Test\EntityManagerTestCase;
-use DigitalCraftsman\DeserializingConnection\Test\Exception\UserNotFound;
+use BuronDigital\DeserializingConnection\Test\Entity\Project;
+use BuronDigital\DeserializingConnection\Test\EntityManagerTestCase;
+use BuronDigital\DeserializingConnection\Test\Exception\UserNotFound;
 use Doctrine\DBAL\ArrayParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

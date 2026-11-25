@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\ORM;
+namespace BuronDigital\DeserializingConnection\ORM;
 
-use DigitalCraftsman\DeserializingConnection\Test\Entity\Project;
-use DigitalCraftsman\DeserializingConnection\Test\EntityManagerTestCase;
-use DigitalCraftsman\DeserializingConnection\Test\RecordingConnection;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectId;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectIdList;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectName;
+use BuronDigital\DeserializingConnection\Test\Entity\Project;
+use BuronDigital\DeserializingConnection\Test\EntityManagerTestCase;
+use BuronDigital\DeserializingConnection\Test\RecordingConnection;
+use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectId;
+use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectIdList;
+use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectName;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;

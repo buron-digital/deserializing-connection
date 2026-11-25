@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer\DTO;
+namespace BuronDigital\DeserializingConnection\Serializer\DTO;
 
 /**
  * The result transformer key is the array key that represents the relevant data, in the decoded / denormalized data, that should be

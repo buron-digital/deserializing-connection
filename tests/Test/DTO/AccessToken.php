@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Test\DTO;
+namespace BuronDigital\DeserializingConnection\Test\DTO;
 
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\ArrayNormalizable;
+use BuronDigital\SelfAwareNormalizers\Serializer\ArrayNormalizable;
 
 final readonly class AccessToken implements ArrayNormalizable
 {

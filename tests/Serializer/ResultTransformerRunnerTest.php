@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer;
+namespace BuronDigital\DeserializingConnection\Serializer;
 
-use DigitalCraftsman\DeserializingConnection\Test\DTO\AccessToken;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
+use BuronDigital\DeserializingConnection\Test\DTO\AccessToken;
+use BuronDigital\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
+use BuronDigital\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

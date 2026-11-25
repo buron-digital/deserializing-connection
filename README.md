@@ -2,11 +2,17 @@
 
 Write plain SQL, get typed DTOs back. One method call executes the query, decodes the database values (like JSON or booleans) and denormalizes the result into your read models through the Symfony serializer – without an ORM, without hydration code and without losing any type information.
 
-[![Latest Stable Version](https://img.shields.io/badge/stable-1.1.1-blue)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
-[![PHP Version Require](https://img.shields.io/badge/php-8.5|8.6-5b5d95)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
-[![codecov](https://codecov.io/gh/digital-craftsman-de/deserializing-connection/branch/main/graph/badge.svg?token=BL0JKZYLBG)](https://codecov.io/gh/digital-craftsman-de/deserializing-connection)
-![Packagist Downloads](https://img.shields.io/packagist/dt/digital-craftsman/deserializing-connection)
-![Packagist License](https://img.shields.io/packagist/l/digital-craftsman/deserializing-connection)
+[![Latest Stable Version](https://img.shields.io/badge/stable-2.0.0-blue)](https://packagist.org/packages/buron-digital/deserializing-connection)
+[![PHP Version Require](https://img.shields.io/badge/php-8.5|8.6-5b5d95)](https://packagist.org/packages/buron-digital/deserializing-connection)
+[![codecov](https://codecov.io/gh/buron-digital/deserializing-connection/branch/main/graph/badge.svg?token=BL0JKZYLBG)](https://codecov.io/gh/buron-digital/deserializing-connection)
+![Packagist Downloads](https://img.shields.io/packagist/dt/buron-digital/deserializing-connection)
+![Packagist License](https://img.shields.io/packagist/l/buron-digital/deserializing-connection)
+
+> [!NOTE]
+> Up to version 1.1.1, the package was published as [`digital-craftsman/deserializing-connection`](https://packagist.org/packages/digital-craftsman/deserializing-connection) with the namespace `DigitalCraftsman\DeserializingConnection`. See the [upgrade guide](./UPGRADE.md#renamed-package-and-namespace) for how to switch.
+>
+> Downloads under the old name:\
+> [![Packagist Downloads](https://img.shields.io/packagist/dt/digital-craftsman/deserializing-connection)](https://packagist.org/packages/digital-craftsman/deserializing-connection)
 
 ## Why?
 
@@ -71,7 +77,7 @@ The DTO itself doesn't need any mapping code. Only value objects like `UserId` d
 Requires PHP 8.5 or 8.6, Symfony 7.4 or 8 and Doctrine DBAL 4.
 
 ```shell
-composer require digital-craftsman/deserializing-connection
+composer require buron-digital/deserializing-connection
 ```
 
 The services are registered automatically and can be injected through autowiring. The bundle follows [semantic versioning](https://semver.org). Updates are described in the [upgrade guide](./UPGRADE.md).
@@ -347,7 +353,7 @@ When you only need scalar values or arrays, use the underlying `DecodingConnecti
 
 The denormalization is done through the Symfony serializer. DTOs like the `Company` above don't need any configuration: the serializer creates them through their constructor and denormalizes every parameter depending on its type.
 
-Only value objects need to define how they are normalized and denormalized. The easiest way is the [`digital-craftsman/self-aware-normalizers`](https://github.com/digital-craftsman-de/self-aware-normalizers) package, which is required by this bundle. Implement one of its interfaces and the value object is denormalized automatically wherever it's used – in every DTO and every query:
+Only value objects need to define how they are normalized and denormalized. The easiest way is the [`buron-digital/self-aware-normalizers`](https://github.com/buron-digital/self-aware-normalizers) package, which is required by this bundle. Implement one of its interfaces and the value object is denormalized automatically wherever it's used – in every DTO and every query:
 
 ```php
 final readonly class CompanyName implements StringNormalizable
@@ -372,7 +378,7 @@ final readonly class CompanyName implements StringNormalizable
 }
 ```
 
-There are interfaces for `string`, `int`, `float`, `bool` and `array` values. The same value objects can also be used as Doctrine types. Ids like `CompanyId` can be created through [`digital-craftsman/ids`](https://github.com/digital-craftsman-de/ids), which builds on the same interfaces.
+There are interfaces for `string`, `int`, `float`, `bool` and `array` values. The same value objects can also be used as Doctrine types. Ids like `CompanyId` can be created through [`buron-digital/ids`](https://github.com/buron-digital/ids), which builds on the same interfaces.
 
 Any other normalizer registered in the Symfony serializer works as well.
 
@@ -450,3 +456,9 @@ The `ResultSetMappingConnection` is only registered when `doctrine/orm` is insta
 
 - [Changelog](./CHANGELOG.md)
 - [Upgrade guide](./UPGRADE.md)
+
+## Who's behind this
+
+<a href="https://www.buron.digital"><img src="https://raw.githubusercontent.com/buron-digital/deserializing-connection/main/.github/assets/buron-digital-banner.png" alt="Christian Kolb, Buron Digital – Building your digital products. Free initial consultation." width="100%"></a>
+
+<p align="center"><sub><a href="https://www.buron.digital">www.buron.digital</a> · <a href="mailto:info@buron.digital">info@buron.digital</a></sub></p>

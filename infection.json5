@@ -9,35 +9,35 @@
     "@default": true,
     "IncrementInteger": {
       "ignore": [
-        "DigitalCraftsman\\DeserializingConnection\\Serializer\\DecodingConnection::decodeValue",
-        "DigitalCraftsman\\DeserializingConnection\\Doctrine\\ArrayNormalizableType::convertToPHPValue"
+        "BuronDigital\\DeserializingConnection\\Serializer\\DecodingConnection::decodeValue",
+        "BuronDigital\\DeserializingConnection\\Doctrine\\ArrayNormalizableType::convertToPHPValue"
       ]
     },
     "DecrementInteger": {
       "ignore": [
-        "DigitalCraftsman\\DeserializingConnection\\Serializer\\DecodingConnection::decodeValue",
-        "DigitalCraftsman\\DeserializingConnection\\Doctrine\\ArrayNormalizableType::convertToPHPValue"
+        "BuronDigital\\DeserializingConnection\\Serializer\\DecodingConnection::decodeValue",
+        "BuronDigital\\DeserializingConnection\\Doctrine\\ArrayNormalizableType::convertToPHPValue"
       ]
     },
     "MethodCallRemoval": {
       "ignore": [
-        "DigitalCraftsman\\DeserializingConnection\\**\\Exception\\**::__construct"
+        "BuronDigital\\DeserializingConnection\\**\\Exception\\**::__construct"
       ]
     },
     "LogicalNot": {
       "ignore": [
-        "DigitalCraftsman\\DeserializingConnection\\Profiler\\RunnableQueryVisitor::acceptOther"
+        "BuronDigital\\DeserializingConnection\\Profiler\\RunnableQueryVisitor::acceptOther"
       ]
     },
     "FalseValue": {
       "ignore": [
-        "DigitalCraftsman\\DeserializingConnection\\Serializer\\DTO\\ResultTransformer::toRename"
+        "BuronDigital\\DeserializingConnection\\Serializer\\DTO\\ResultTransformer::toRename"
       ]
     },
     "PublicVisibility": {
       "ignore": [
-        "DigitalCraftsman\\DeserializingConnection\\Serializer\\DecodingConnection::decodeValue",
-        "DigitalCraftsman\\DeserializingConnection\\Serializer\\ResultTransformerRunner::transformItem"
+        "BuronDigital\\DeserializingConnection\\Serializer\\DecodingConnection::decodeValue",
+        "BuronDigital\\DeserializingConnection\\Serializer\\ResultTransformerRunner::transformItem"
       ]
     }
   },

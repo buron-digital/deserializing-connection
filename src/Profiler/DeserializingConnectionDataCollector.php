@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Profiler;
+namespace BuronDigital\DeserializingConnection\Profiler;
 
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\HttpFoundation\Request;

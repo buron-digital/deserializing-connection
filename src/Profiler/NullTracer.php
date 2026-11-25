@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Profiler;
+namespace BuronDigital\DeserializingConnection\Profiler;
 
 /**
  * Used when the profiler isn't available (e.g. in production).

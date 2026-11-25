@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Test\ValueObject;
+namespace BuronDigital\DeserializingConnection\Test\ValueObject;
 
 enum ProjectName: string
 {

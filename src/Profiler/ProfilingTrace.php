@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Profiler;
+namespace BuronDigital\DeserializingConnection\Profiler;
 
 /**
  * Holds the data of every step of a single usage. The duration of every step is measured from the end of the previous step (or the start

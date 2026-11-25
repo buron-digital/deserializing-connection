@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer\DTO;
+namespace BuronDigital\DeserializingConnection\Serializer\DTO;
 
 enum DecoderType
 {

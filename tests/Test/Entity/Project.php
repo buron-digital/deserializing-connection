@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Test\Entity;
+namespace BuronDigital\DeserializingConnection\Test\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 

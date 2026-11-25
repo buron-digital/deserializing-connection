@@ -175,7 +175,7 @@
                             {% endif %}
                         </td>
                     </tr>
-                    {% set labels = trace.method starts with 'DigitalCraftsman\\DeserializingConnection\\ORM\\' ? result_set_mapping_stage_labels : stage_labels %}
+                    {% set labels = trace.method starts with 'BuronDigital\\DeserializingConnection\\ORM\\' ? result_set_mapping_stage_labels : stage_labels %}
                     {% for stage, label in labels %}
                         {% if trace.stages[stage] is defined %}
                             <tr class="deserializing-connection-step {{ status }}">

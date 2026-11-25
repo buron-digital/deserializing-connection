@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer;
+namespace BuronDigital\DeserializingConnection\Serializer;
 
-use DigitalCraftsman\DeserializingConnection\Test\ConnectionTestCase;
-use DigitalCraftsman\DeserializingConnection\Test\DTO\Company;
-use DigitalCraftsman\DeserializingConnection\Test\DTO\CompanyWithProjects;
-use DigitalCraftsman\DeserializingConnection\Test\DTO\Duration;
-use DigitalCraftsman\DeserializingConnection\Test\DTO\ProjectWithTimeEntries;
-use DigitalCraftsman\DeserializingConnection\Test\DTO\TimeEntry;
-use DigitalCraftsman\DeserializingConnection\Test\DTO\User;
-use DigitalCraftsman\DeserializingConnection\Test\Exception\UserNotFound;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\CompanyId;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectId;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectIdList;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\UserId;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\IntNormalizableNormalizer;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
+use BuronDigital\DeserializingConnection\Test\ConnectionTestCase;
+use BuronDigital\DeserializingConnection\Test\DTO\Company;
+use BuronDigital\DeserializingConnection\Test\DTO\CompanyWithProjects;
+use BuronDigital\DeserializingConnection\Test\DTO\Duration;
+use BuronDigital\DeserializingConnection\Test\DTO\ProjectWithTimeEntries;
+use BuronDigital\DeserializingConnection\Test\DTO\TimeEntry;
+use BuronDigital\DeserializingConnection\Test\DTO\User;
+use BuronDigital\DeserializingConnection\Test\Exception\UserNotFound;
+use BuronDigital\DeserializingConnection\Test\ValueObject\CompanyId;
+use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectId;
+use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectIdList;
+use BuronDigital\DeserializingConnection\Test\ValueObject\UserId;
+use BuronDigital\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
+use BuronDigital\SelfAwareNormalizers\Serializer\IntNormalizableNormalizer;
+use BuronDigital\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
