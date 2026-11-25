@@ -1,8 +1,8 @@
 <?php
 
-namespace DigitalCraftsman\DeserializingConnection;
+namespace BuronDigital\DeserializingConnection;
 
-use DigitalCraftsman\DeserializingConnection\DependencyInjection\Compiler\ProfilerPass;
+use BuronDigital\DeserializingConnection\DependencyInjection\Compiler\ProfilerPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;

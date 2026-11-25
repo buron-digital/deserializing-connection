@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Test\DTO;
+namespace BuronDigital\DeserializingConnection\Test\DTO;
 
 final readonly class CompanyWithProjects
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Test\ValueObject;
+namespace BuronDigital\DeserializingConnection\Test\ValueObject;
 
-use DigitalCraftsman\Ids\ValueObject\IdList;
+use BuronDigital\Ids\ValueObject\IdList;
 
 /**
  * @template-extends IdList<ProjectId>

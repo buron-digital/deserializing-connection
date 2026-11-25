@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PHP Symfony Bundle (`digital-craftsman/deserializing-connection`) that provides a typed wrapper around Doctrine DBAL to deserialize database results directly into DTOs using Symfony Serializer.
+PHP Symfony Bundle (`buron-digital/deserializing-connection`) that provides a typed wrapper around Doctrine DBAL to deserialize database results directly into DTOs using Symfony Serializer.
 
 ## Development Environment
 

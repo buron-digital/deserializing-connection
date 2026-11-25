@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Profiler;
+namespace BuronDigital\DeserializingConnection\Profiler;
 
-use DigitalCraftsman\DeserializingConnection\ORM\ResultSetMappingConnection;
-use DigitalCraftsman\DeserializingConnection\Serializer\DecodingConnection;
-use DigitalCraftsman\DeserializingConnection\Serializer\DeserializingConnection;
+use BuronDigital\DeserializingConnection\ORM\ResultSetMappingConnection;
+use BuronDigital\DeserializingConnection\Serializer\DecodingConnection;
+use BuronDigital\DeserializingConnection\Serializer\DeserializingConnection;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**

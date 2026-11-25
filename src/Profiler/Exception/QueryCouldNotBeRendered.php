@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Profiler\Exception;
+namespace BuronDigital\DeserializingConnection\Profiler\Exception;
 
 /**
  * @psalm-immutable

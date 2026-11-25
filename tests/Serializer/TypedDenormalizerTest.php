@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer;
+namespace BuronDigital\DeserializingConnection\Serializer;
 
-use DigitalCraftsman\DeserializingConnection\Test\DTO\User;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\ProjectIdList;
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\UserId;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
+use BuronDigital\DeserializingConnection\Test\DTO\User;
+use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectIdList;
+use BuronDigital\DeserializingConnection\Test\ValueObject\UserId;
+use BuronDigital\SelfAwareNormalizers\Serializer\ArrayNormalizableNormalizer;
+use BuronDigital\SelfAwareNormalizers\Serializer\StringNormalizableNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

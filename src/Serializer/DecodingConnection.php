@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer;
+namespace BuronDigital\DeserializingConnection\Serializer;
 
-use DigitalCraftsman\DeserializingConnection\Profiler\NullTracer;
-use DigitalCraftsman\DeserializingConnection\Profiler\Trace;
-use DigitalCraftsman\DeserializingConnection\Profiler\Tracer;
+use BuronDigital\DeserializingConnection\Profiler\NullTracer;
+use BuronDigital\DeserializingConnection\Profiler\Trace;
+use BuronDigital\DeserializingConnection\Profiler\Tracer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;

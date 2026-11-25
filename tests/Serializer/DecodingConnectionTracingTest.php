@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Serializer;
+namespace BuronDigital\DeserializingConnection\Serializer;
 
-use DigitalCraftsman\DeserializingConnection\Profiler\ProfilingTrace;
-use DigitalCraftsman\DeserializingConnection\Profiler\ProfilingTracer;
-use DigitalCraftsman\DeserializingConnection\Profiler\RunnableQueryRenderer;
-use DigitalCraftsman\DeserializingConnection\Profiler\Trace;
-use DigitalCraftsman\DeserializingConnection\Test\ConnectionTestCase;
+use BuronDigital\DeserializingConnection\Profiler\ProfilingTrace;
+use BuronDigital\DeserializingConnection\Profiler\ProfilingTracer;
+use BuronDigital\DeserializingConnection\Profiler\RunnableQueryRenderer;
+use BuronDigital\DeserializingConnection\Profiler\Trace;
+use BuronDigital\DeserializingConnection\Test\ConnectionTestCase;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

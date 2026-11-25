@@ -1,5 +1,43 @@
 # Upgrade guide
 
+## From 1.1.* to 2.0.0
+
+### Renamed package and namespace
+
+The package moved from `digital-craftsman/deserializing-connection` to `buron-digital/deserializing-connection` and the namespace from `DigitalCraftsman\DeserializingConnection` to `BuronDigital\DeserializingConnection`. Apart from the names, nothing changed, so the upgrade is a plain search and replace.
+
+This version depends on `buron-digital/self-aware-normalizers` instead of `digital-craftsman/self-aware-normalizers`. Switch it in the same step (see its upgrade guide) and replace its namespace as well.
+
+1. Replace the package in your `composer.json`.
+
+   Before:
+   ```json
+   "digital-craftsman/deserializing-connection": "^1.1"
+   ```
+
+   After:
+   ```json
+   "buron-digital/deserializing-connection": "^2.0.0"
+   ```
+
+2. Replace the namespace in your whole project – not only in `src` and `tests`, but also in `config` (e.g. `config/bundles.php` and service or Doctrine configuration), migrations, templates and all other files that contain class names. Search for `DigitalCraftsman\DeserializingConnection\` and replace it with `BuronDigital\DeserializingConnection\` (e.g. with "Replace in Files" of your IDE) or run the following command in the root of your project. It also covers escaped class names like `'DigitalCraftsman\\DeserializingConnection\\…'` in strings:
+
+   ```shell
+   grep -rlE 'DigitalCraftsman\\+DeserializingConnection' --exclude-dir=vendor --exclude-dir=var --exclude-dir=node_modules --exclude-dir=.git . \
+     | xargs perl -pi -e 's/DigitalCraftsman(\\+)DeserializingConnection/BuronDigital$1DeserializingConnection/g'
+   ```
+
+   When you switch all packages (`self-aware-normalizers`, `ids`, `date-time-precision`, `deserializing-connection`, `cqs-routing`) at once, you can replace `DigitalCraftsman` with `BuronDigital` instead.
+
+3. Update the packages and clear the cache:
+
+   ```shell
+   composer update "buron-digital/*"
+   bin/console cache:clear
+   ```
+
+4. Check where class names are stored outside of your code. For example, PHP-serialized messages in Symfony Messenger queues or objects in persistent cache pools still contain the previous class names. Let the queues run empty and clear those pools when deploying the change.
+
 ## From 0.9.* to 1.0.0
 
 ### Dropped support for PHP 8.4

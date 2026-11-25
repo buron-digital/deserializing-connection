@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Test\DTO;
+namespace BuronDigital\DeserializingConnection\Test\DTO;
 
-use DigitalCraftsman\DeserializingConnection\Test\ValueObject\CompanyId;
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\ArrayNormalizable;
+use BuronDigital\DeserializingConnection\Test\ValueObject\CompanyId;
+use BuronDigital\SelfAwareNormalizers\Serializer\ArrayNormalizable;
 
 final readonly class Company implements ArrayNormalizable
 {

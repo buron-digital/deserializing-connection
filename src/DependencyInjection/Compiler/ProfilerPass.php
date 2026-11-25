@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\DependencyInjection\Compiler;
+namespace BuronDigital\DeserializingConnection\DependencyInjection\Compiler;
 
-use DigitalCraftsman\DeserializingConnection\Profiler\DeserializingConnectionDataCollector;
-use DigitalCraftsman\DeserializingConnection\Profiler\ProfilingTracer;
-use DigitalCraftsman\DeserializingConnection\Profiler\Tracer;
+use BuronDigital\DeserializingConnection\Profiler\DeserializingConnectionDataCollector;
+use BuronDigital\DeserializingConnection\Profiler\ProfilingTracer;
+use BuronDigital\DeserializingConnection\Profiler\Tracer;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 

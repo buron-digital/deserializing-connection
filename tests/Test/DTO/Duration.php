@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DigitalCraftsman\DeserializingConnection\Test\DTO;
+namespace BuronDigital\DeserializingConnection\Test\DTO;
 
-use DigitalCraftsman\SelfAwareNormalizers\Serializer\IntNormalizable;
+use BuronDigital\SelfAwareNormalizers\Serializer\IntNormalizable;
 
 final readonly class Duration implements IntNormalizable
 {
