@@ -16,6 +16,12 @@ final class ProfilingTrace implements Trace
     public const string STAGE_TRANSFORMED = 'transformed';
     public const string STAGE_DENORMALIZED = 'denormalized';
 
+    /**
+     * Only the first items of a generator are kept, as the trace would otherwise keep all items in memory until the end of the request.
+     * Generators are used to iterate over a lot of items without keeping them in memory (e.g. by clearing the entity manager in between).
+     */
+    public const int MAX_RECORDED_DENORMALIZED_ITEMS = 100;
+
     /** @var array<self::STAGE_*, mixed> */
     public private(set) array $stages = [];
 
@@ -24,10 +30,12 @@ final class ProfilingTrace implements Trace
 
     public private(set) ?\Throwable $exception = null;
 
+    /** Number of items of a generator that were denormalized, but not recorded (see MAX_RECORDED_DENORMALIZED_ITEMS). */
+    public private(set) int $numberOfOmittedDenormalizedItems = 0;
+
     private int $lastRecordedAt;
 
-    /** @var list<int> */
-    private array $itemDenormalizationDurationsInNanoseconds = [];
+    private int $denormalizedItemsDurationInNanoseconds = 0;
 
     /**
      * @param array<string, mixed>                $configuration
@@ -75,7 +83,7 @@ final class ProfilingTrace implements Trace
     }
 
     /**
-     * The durations of all items are summed up.
+     * The durations of all items are summed up, also of the items that aren't recorded.
      *
      * @psalm-suppress MixedArrayAssignment The stage is only filled through this method in case of generators
      */
@@ -84,9 +92,16 @@ final class ProfilingTrace implements Trace
     {
         $now = hrtime(true);
 
-        $this->stages[self::STAGE_DENORMALIZED][] = $denormalizedItem;
-        $this->itemDenormalizationDurationsInNanoseconds[] = $now - $this->lastRecordedAt;
-        $this->stageDurationsInNanoseconds[self::STAGE_DENORMALIZED] = array_sum($this->itemDenormalizationDurationsInNanoseconds);
+        /** @var list<object> $recordedItems */
+        $recordedItems = $this->stages[self::STAGE_DENORMALIZED] ?? [];
+        if (count($recordedItems) < self::MAX_RECORDED_DENORMALIZED_ITEMS) {
+            $this->stages[self::STAGE_DENORMALIZED][] = $denormalizedItem;
+        } else {
+            ++$this->numberOfOmittedDenormalizedItems;
+        }
+
+        $this->denormalizedItemsDurationInNanoseconds += $now - $this->lastRecordedAt;
+        $this->stageDurationsInNanoseconds[self::STAGE_DENORMALIZED] = $this->denormalizedItemsDurationInNanoseconds;
 
         $this->lastRecordedAt = $now;
     }

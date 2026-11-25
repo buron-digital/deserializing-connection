@@ -390,6 +390,8 @@ When the Symfony profiler is enabled (through `symfony/web-profiler-bundle`), ev
 - The raw result, the result after decoding, the result after the result transformers and the denormalized objects, each with the duration of the step.
 - The configuration (class, decoder types, result transformers), the query duration, the location of the usage and a potential exception including the step in which it happened.
 
+For generators, only the first 100 denormalized objects are kept for the panel, so that the profiler doesn't keep all objects in memory until the end of the request (which would prevent clearing the entity manager from freeing memory with the `ResultSetMappingConnection`). The panel shows how many objects were omitted. The duration includes the time of all objects.
+
 As the ORM executes the query and hydrates the entities in one step, the usages of the `ResultSetMappingConnection` contain a single step "Query and hydration" with the entities and the duration of both. Its duration is part of the total time, but not of the query time.
 
 The runnable query is rendered with the same parser that Doctrine DBAL uses to expand parameters. Therefore, string literals, comments, casts (`::`), array parameters and escaped question marks (`??` for the JSONB operators of PostgreSQL) are handled the same way as when the query is executed. All values are inlined as string literals, which is how PDO sends parameters to PostgreSQL.

@@ -25,6 +25,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
  *   configuration: Data,
  *   stageDurationsInNanoseconds: array<string, int>,
  *   stages: array<string, Data>,
+ *   numberOfOmittedDenormalizedItems: int,
  *   exception: Data|null,
  *   exceptionClass: string|null,
  *   exceptionMessage: string|null,
@@ -62,6 +63,7 @@ final class DeserializingConnectionDataCollector extends AbstractDataCollector i
                 'configuration' => $this->cloneVar(self::replaceEnums($trace->configuration)),
                 'stageDurationsInNanoseconds' => $trace->stageDurationsInNanoseconds,
                 'stages' => array_map($this->cloneVar(...), $trace->stages),
+                'numberOfOmittedDenormalizedItems' => $trace->numberOfOmittedDenormalizedItems,
                 'exception' => $trace->exception !== null
                     ? $this->cloneVar($trace->exception)
                     : null,
