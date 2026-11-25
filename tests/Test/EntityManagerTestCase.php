@@ -24,6 +24,7 @@ abstract class EntityManagerTestCase extends ConnectionTestCase
             isDevMode: true,
         );
         $configuration->enableNativeLazyObjects(true);
+        $configuration->setClassMetadataFactoryName(RecordingClassMetadataFactory::class);
 
         $this->entityManager = new EntityManager($this->connection, $configuration);
 

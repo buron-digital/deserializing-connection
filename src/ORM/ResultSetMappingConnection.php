@@ -314,6 +314,7 @@ final readonly class ResultSetMappingConnection
      *   infer for it. This is only done when the items are scalars or objects that aren't entities, traversables or backed enums.
      *
      * Everything else (scalars, arrays, entities, backed enums and traversables with other items) is left to the ORM without a type.
+     * Traversables are always passed as list of their items, so that generators work as well.
      *
      * @return array{0: mixed, 1: ParameterType|ArrayParameterType|string|null}
      */
@@ -330,29 +331,30 @@ final readonly class ResultSetMappingConnection
             return [$value, ParameterTypeInferer::inferType($value)];
         }
 
-        $items = [];
+        // The traversable is only iterated once, as a generator can't be iterated again. Therefore, the list of its items is passed on
+        // instead of the traversable itself, also when the ORM resolves them. The ORM would convert the traversable into a list anyway.
+        $items = iterator_to_array($value, false);
+
         $itemClasses = [];
         /** @psalm-suppress MixedAssignment */
-        foreach ($value as $item) {
+        foreach ($items as $item) {
             if (is_array($item)
                 || $item instanceof \Traversable
                 || $item instanceof \BackedEnum
             ) {
-                return [$value, null];
+                return [$items, null];
             }
 
             if (is_object($item)) {
                 $itemClass = DefaultProxyClassNameResolver::getClass($item);
                 $itemClasses[$itemClass] = $itemClass;
             }
-
-            $items[] = $item;
         }
 
         // Every class is only checked once, as all items of an id list share the same class.
         foreach ($itemClasses as $itemClass) {
             if (!$this->entityManager->getMetadataFactory()->isTransient($itemClass)) {
-                return [$value, null];
+                return [$items, null];
             }
         }
 

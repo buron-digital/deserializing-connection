@@ -6,6 +6,7 @@ namespace BuronDigital\DeserializingConnection\ORM;
 
 use BuronDigital\DeserializingConnection\Test\Entity\Project;
 use BuronDigital\DeserializingConnection\Test\EntityManagerTestCase;
+use BuronDigital\DeserializingConnection\Test\RecordingClassMetadataFactory;
 use BuronDigital\DeserializingConnection\Test\RecordingConnection;
 use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectId;
 use BuronDigital\DeserializingConnection\Test\ValueObject\ProjectIdList;
@@ -108,6 +109,7 @@ final class ResultSetMappingConnectionParametersTest extends EntityManagerTestCa
         $executedQuery = $this->lastExecutedQuery();
         self::assertSame(['projectIds' => [$ironManSuitId, $batmobileId]], $executedQuery['parameters']);
         self::assertSame(['projectIds' => ArrayParameterType::STRING], $executedQuery['types']);
+        self::assertNotContains(ProjectId::class, $this->requestedMetadataClasses());
     }
 
     #[Test]
@@ -316,6 +318,112 @@ final class ResultSetMappingConnectionParametersTest extends EntityManagerTestCa
         self::assertSame(['projectIds' => [self::IRON_MAN_SUIT_ID, self::BATMOBILE_ID]], $executedQuery['parameters']);
     }
 
+    #[Test]
+    public function generator_of_ids_is_passed_to_the_connection_as_list_of_ids(): void
+    {
+        // -- Arrange
+        $ironManSuitId = ProjectId::fromString(self::IRON_MAN_SUIT_ID);
+        $batmobileId = ProjectId::fromString(self::BATMOBILE_ID);
+
+        // -- Act
+        $projects = $this->findProjects(
+            condition: 'project.project_id IN (:projectIds)',
+            parameters: [
+                'projectIds' => self::generator([
+                    $ironManSuitId,
+                    $batmobileId,
+                ]),
+            ],
+        );
+
+        // -- Assert
+        self::assertSame(['Batmobile', 'Iron Man suit'], $projects);
+        $executedQuery = $this->lastExecutedQuery();
+        self::assertSame(['projectIds' => [$ironManSuitId, $batmobileId]], $executedQuery['parameters']);
+        self::assertSame(['projectIds' => ArrayParameterType::STRING], $executedQuery['types']);
+    }
+
+    /**
+     * A generator can only be iterated once. As the ORM iterates over traversables it resolves, the list of the items must be passed on
+     * instead of the generator.
+     */
+    #[Test]
+    public function generator_of_entities_is_resolved_to_identifiers_by_the_orm(): void
+    {
+        // -- Arrange
+        $ironManSuit = $this->entityManager->find(Project::class, self::IRON_MAN_SUIT_ID);
+        $batmobile = $this->entityManager->find(Project::class, self::BATMOBILE_ID);
+
+        // -- Act
+        $projects = $this->findProjects(
+            condition: 'project.project_id IN (:projects)',
+            parameters: [
+                'projects' => self::generator([
+                    'ironManSuit' => $ironManSuit,
+                    'batmobile' => $batmobile,
+                ]),
+            ],
+        );
+
+        // -- Assert
+        self::assertSame(['Batmobile', 'Iron Man suit'], $projects);
+        $executedQuery = $this->lastExecutedQuery();
+        self::assertSame(['projects' => [self::IRON_MAN_SUIT_ID, self::BATMOBILE_ID]], $executedQuery['parameters']);
+        self::assertSame(['projects' => ArrayParameterType::STRING], $executedQuery['types']);
+    }
+
+    #[Test]
+    public function generator_of_backed_enums_is_resolved_to_values_by_the_orm(): void
+    {
+        // -- Act
+        $projects = $this->findProjects(
+            condition: 'project.name IN (:names)',
+            parameters: [
+                'names' => self::generator([
+                    ProjectName::IRON_MAN_SUIT,
+                    ProjectName::BATMOBILE,
+                ]),
+            ],
+        );
+
+        // -- Assert
+        self::assertSame(['Batmobile', 'Iron Man suit'], $projects);
+        $executedQuery = $this->lastExecutedQuery();
+        self::assertSame(['names' => ['Iron Man suit', 'Batmobile']], $executedQuery['parameters']);
+    }
+
+    #[Test]
+    public function generator_of_arrays_is_resolved_by_the_orm(): void
+    {
+        // -- Act
+        $projects = $this->findProjects(
+            condition: 'project.project_id IN (:projectIds)',
+            parameters: [
+                'projectIds' => self::generator([
+                    [self::IRON_MAN_SUIT_ID],
+                    [self::BATMOBILE_ID],
+                ]),
+            ],
+        );
+
+        // -- Assert
+        self::assertSame(['Batmobile', 'Iron Man suit'], $projects);
+        $executedQuery = $this->lastExecutedQuery();
+        self::assertSame(['projectIds' => [self::IRON_MAN_SUIT_ID, self::BATMOBILE_ID]], $executedQuery['parameters']);
+    }
+
+    /**
+     * @template T
+     *
+     * @param array<array-key, T> $items
+     *
+     * @return \Generator<array-key, T>
+     */
+    private static function generator(array $items): \Generator
+    {
+        yield from $items;
+    }
+
     /**
      * @param array<string, mixed> $parameters
      *
@@ -344,6 +452,19 @@ final class ResultSetMappingConnectionParametersTest extends EntityManagerTestCa
             static fn (Project $project): string => $project->name,
             $projects,
         );
+    }
+
+    /**
+     * The ORM requests the metadata of every object parameter it tries to resolve as entity.
+     *
+     * @return list<string>
+     */
+    private function requestedMetadataClasses(): array
+    {
+        /** @var RecordingClassMetadataFactory $metadataFactory */
+        $metadataFactory = $this->entityManager->getMetadataFactory();
+
+        return $metadataFactory->requestedClasses;
     }
 
     /**
